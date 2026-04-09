@@ -1,0 +1,54 @@
+.landing-hero {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d1a0a 100%);
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+.landing-content { max-width: 600px; text-align: center; }
+.landing-badge {
+  display: inline-block;
+  background: rgba(232,120,26,0.2);
+  color: var(--orange);
+  border: 1px solid rgba(232,120,26,0.4);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.landing-title {
+  font-size: 52px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+.landing-title span { color: var(--orange); }
+.landing-subtitle { font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 36px; line-height: 1.6; }
+.landing-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.landing-login { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+.section-title { font-size: 24px; font-weight: 800; margin-bottom: 24px; text-align: center; }
+.landing-features { padding-top: 60px; padding-bottom: 20px; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.feature-card { text-align: center; }
+.feature-icon { font-size: 36px; margin-bottom: 12px; }
+.feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.feature-card p { font-size: 14px; color: var(--gray-500); line-height: 1.5; }
+
+.landing-trades { padding-bottom: 60px; }
+.trades-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.trade-chip {
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1.5px solid var(--gray-200);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  transition: all 0.15s;
+}
+.trade-chip:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
