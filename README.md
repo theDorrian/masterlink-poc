@@ -1,14 +1,6 @@
 # MasterLink — Find Reliable Tradesmen Instantly
 
-> Enterprise Project PoC — мобильное приложение для найма мастеров (сантехники, электрики, плотники, маляры и др.)
-
----
-
-## Скриншоты
-
-| Splash | Логин | Поиск | Фильтры | Профиль мастера | Заявка |
-|--------|-------|-------|---------|-----------------|--------|
-| Выбор роли | Email + пароль | Список мастеров | По специальности, цене, рейтингу | Отзывы, цены | Описание, фото, срочность |
+> Enterprise Project PoC — платформа для найма мастеров (сантехники, электрики, плотники, маляры и др.)
 
 ---
 
@@ -18,10 +10,9 @@
 |-------|-----------|
 | Backend | Node.js + Express + SQLite (better-sqlite3) |
 | Auth | JWT (jsonwebtoken + bcryptjs) |
-| Mobile | React Native + Expo |
-| Navigation | React Navigation (Stack + Bottom Tabs) |
+| Web Frontend | React + Vite |
+| Routing | React Router v6 |
 | HTTP | Axios |
-| Storage | AsyncStorage |
 
 ---
 
@@ -29,42 +20,39 @@
 
 ```
 EP_Project_PoC/
-├── backend/
-│   ├── server.js                  # Express точка входа
-│   ├── .env.example               # Шаблон переменных окружения
+├── backend/                       # REST API
+│   ├── server.js
+│   ├── .env.example
 │   ├── db/
 │   │   ├── database.js            # SQLite подключение
-│   │   ├── schema.sql             # Таблицы: users, tradesman_profiles, job_requests, reviews
-│   │   └── seed.js                # Демо-данные (8 мастеров, 2 клиента)
+│   │   ├── schema.sql             # Таблицы
+│   │   └── seed.js                # Демо-данные
 │   ├── middleware/
 │   │   ├── auth.js                # JWT middleware
 │   │   └── errorHandler.js
 │   ├── routes/
-│   │   ├── auth.js                # /api/auth
-│   │   ├── tradesmen.js           # /api/tradesmen
-│   │   └── jobs.js                # /api/jobs
+│   │   ├── auth.js                # POST /api/auth/register|login, GET /api/auth/me
+│   │   ├── tradesmen.js           # GET /api/tradesmen, GET /api/tradesmen/:id
+│   │   └── jobs.js                # POST /api/jobs, GET /api/jobs/mine, PATCH /api/jobs/:id/status
 │   └── controllers/
-│       ├── authController.js
-│       ├── tradesmensController.js
-│       └── jobsController.js
 │
-└── mobile/
-    ├── App.js
+└── web/                           # React веб-приложение
     ├── .env.example
     └── src/
         ├── api/client.js          # Axios + JWT interceptor
-        ├── context/AuthContext.js # Глобальный auth state
-        ├── navigation/            # AuthStack + MainTabs
-        └── screens/
-            ├── SplashScreen.js
-            ├── LoginScreen.js
-            ├── RegisterScreen.js
-            ├── SearchResultsScreen.js
-            ├── FilterScreen.js
-            ├── TradesmanDetailScreen.js
-            ├── JobRequestScreen.js
-            ├── MyJobsScreen.js
-            └── ProfileScreen.js
+        ├── context/AuthContext.jsx
+        ├── components/
+        │   ├── Navbar.jsx
+        │   └── TradesmanCard.jsx
+        └── pages/
+            ├── LandingPage.jsx    # Главная с hero и категориями
+            ├── LoginPage.jsx
+            ├── RegisterPage.jsx
+            ├── SearchPage.jsx     # Поиск + фильтры
+            ├── TradesmanDetailPage.jsx
+            ├── JobRequestPage.jsx
+            ├── MyJobsPage.jsx
+            └── ProfilePage.jsx
 ```
 
 ---
@@ -74,15 +62,18 @@ EP_Project_PoC/
 ### Требования
 
 - [Node.js](https://nodejs.org/) v18+
-- [Expo Go](https://expo.dev/go) на телефоне (iOS или Android)
-- Телефон и компьютер в **одной Wi-Fi сети**
+- Браузер
+
+---
 
 ### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/masterlink-poc.git
+git clone https://github.com/theDorrian/masterlink-poc.git
 cd masterlink-poc
 ```
+
+---
 
 ### 2. Запустить Backend
 
@@ -104,42 +95,28 @@ npm run dev
 
 Сервер запустится на `http://localhost:3000`
 
-Проверка: `curl http://localhost:3000/health` → `{"status":"ok"}`
+Проверка: открой в браузере `http://localhost:3000/health` → должно вернуть `{"status":"ok"}`
 
-### 3. Запустить Mobile
+---
+
+### 3. Запустить Web Frontend
+
+Открыть **новый терминал** (backend должен продолжать работать):
 
 ```bash
-cd mobile
+cd web
 
 # Установить зависимости
 npm install
 
 # Создать .env из шаблона
 cp .env.example .env
+
+# Запустить dev-сервер
+npm run dev
 ```
 
-Отредактировать `mobile/.env` — вписать локальный IP компьютера:
-
-```bash
-# Узнать IP (macOS/Linux):
-ipconfig getifaddr en0
-
-# Узнать IP (Windows):
-ipconfig
-```
-
-```env
-EXPO_PUBLIC_API_URL=http://192.168.X.X:3000
-```
-
-> ⚠️ **Важно:** `localhost` не работает с реального устройства — нужен IP компьютера в локальной сети.
-
-```bash
-# Запустить Expo
-npx expo start --clear
-```
-
-Отсканировать QR-код через приложение **Expo Go** на телефоне.
+Открыть в браузере: **`http://localhost:5173`**
 
 ---
 
@@ -162,6 +139,28 @@ npx expo start --clear
 
 ---
 
+## Сценарий демо
+
+```
+1. Открыть http://localhost:5173
+2. Log in как alice@example.com (клиент)
+3. Search → увидеть список мастеров
+4. Выбрать фильтр "Plumber" в боковой панели → Apply
+5. Нажать "View Profile" на Mike Johnson
+6. Нажать "Request Job" → заполнить форму → Send Request
+7. Открыть My Jobs → видна заявка со статусом "Pending"
+
+8. Log out → Log in как mike.j@example.com (мастер)
+9. Открыть Requests → видна входящая заявка
+10. Нажать "Accept"
+
+11. Log out → Log in снова как alice
+12. My Jobs → статус изменился на "Accepted"
+13. Нажать "Mark as Completed"
+```
+
+---
+
 ## API Endpoints
 
 ### Auth
@@ -179,49 +178,43 @@ npx expo start --clear
 | `GET` | `/api/tradesmen` | `trade, city, min_rate, max_rate, min_rating, available` | Список с фильтрами |
 | `GET` | `/api/tradesmen/:id` | — | Профиль + отзывы |
 
-### Заявки
+### Заявки (требуют Authorization: Bearer `<token>`)
 
-| Метод | Путь | Auth | Описание |
-|-------|------|------|----------|
-| `POST` | `/api/jobs` | Customer | Создать заявку |
-| `GET` | `/api/jobs/mine` | Bearer | Мои заявки (роль-зависимо) |
-| `PATCH` | `/api/jobs/:id/status` | Bearer | Обновить статус |
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `POST` | `/api/jobs` | Создать заявку (только клиент) |
+| `GET` | `/api/jobs/mine` | Мои заявки (роль-зависимо) |
+| `PATCH` | `/api/jobs/:id/status` | Обновить статус |
 
 ---
 
-## Деплой Backend (Railway)
+## Деплой
+
+### Backend → Railway
 
 1. Зарегистрироваться на [railway.app](https://railway.app)
-2. New Project → Deploy from GitHub repo
-3. Выбрать папку `backend` как Root Directory
+2. New Project → Deploy from GitHub repo → выбрать этот репозиторий
+3. Указать **Root Directory**: `backend`
 4. Добавить переменные окружения:
    ```
-   JWT_SECRET=your_secret_here
+   JWT_SECRET=your_random_secret_here
    JWT_EXPIRES_IN=7d
    NODE_ENV=production
    PORT=3000
    ```
-5. После деплоя скопировать URL (например `https://masterlink-backend.up.railway.app`)
-6. В `mobile/.env` заменить на этот URL:
+5. После деплоя скопировать URL (например `https://masterlink-api.up.railway.app`)
+6. Выполнить seed через Railway CLI или встроенный терминал: `node db/seed.js`
+
+### Frontend → Vercel
+
+1. Зарегистрироваться на [vercel.com](https://vercel.com)
+2. New Project → Import из GitHub → выбрать этот репозиторий
+3. Указать **Root Directory**: `web`
+4. Добавить переменную окружения:
    ```
-   EXPO_PUBLIC_API_URL=https://masterlink-backend.up.railway.app
+   VITE_API_URL=https://masterlink-api.up.railway.app
    ```
-
----
-
-## Сценарий демо
-
-```
-1. Открыть приложение → Splash Screen
-2. "Join as customer" → Войти как alice@example.com
-3. Search → увидеть список мастеров
-4. Нажать ⚙ → Filters → выбрать "Plumber", нажать "Show Results"
-5. Нажать на Mike Johnson → просмотреть профиль
-6. "Request Job" → заполнить заявку → "Send Request"
-7. Выйти → войти как mike.j@example.com (мастер)
-8. Вкладка "Requests" → увидеть входящую заявку → "Accept"
-9. Выйти → войти снова как alice → "My Jobs" → статус "Accepted"
-```
+5. Deploy → получить URL вида `https://masterlink-poc.vercel.app`
 
 ---
 

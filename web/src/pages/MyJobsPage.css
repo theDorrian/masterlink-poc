@@ -1,0 +1,13 @@
+.jobs-list { display: flex; flex-direction: column; gap: 14px; }
+.job-card {}
+.job-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.job-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.job-meta { font-size: 13px; color: var(--gray-500); display: flex; gap: 6px; flex-wrap: wrap; }
+.job-badges { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+.job-desc { font-size: 14px; color: var(--gray-500); line-height: 1.5; margin-bottom: 8px; }
+.job-address { font-size: 13px; color: var(--gray-500); margin-bottom: 4px; }
+.job-fee { font-size: 14px; color: var(--gray-700); }
+.job-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--gray-100); }
+.empty-jobs { text-align: center; padding: 80px 0; }
+.empty-jobs h3 { font-size: 18px; font-weight: 700; margin: 12px 0 6px; }
+.empty-jobs p { font-size: 14px; color: var(--gray-500); }
