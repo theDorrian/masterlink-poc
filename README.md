@@ -217,7 +217,3 @@ npm run dev
 5. Deploy → получить URL вида `https://masterlink-poc.vercel.app`
 
 ---
-
-## Лицензия
-
-MIT
