@@ -1,0 +1,41 @@
+.job-request-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+
+.request-tradesman {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--gray-50);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.req-avatar {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.urgency-btns { display: flex; gap: 10px; }
+.urgency-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-500);
+  background: #fff;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.urgency-btn.active-red { border-color: var(--red); color: var(--red); background: #FEE2E2; }
+.urgency-btn.active-blue { border-color: #2563EB; color: #2563EB; background: #DBEAFE; }
+
+@media (max-width: 700px) {
+  .job-request-layout { grid-template-columns: 1fr; }
+}

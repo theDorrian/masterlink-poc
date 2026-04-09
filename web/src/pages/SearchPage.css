@@ -1,0 +1,53 @@
+.search-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+
+.search-sidebar {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  position: sticky;
+  top: 80px;
+}
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.sidebar-header h2 { font-size: 16px; font-weight: 700; }
+.reset-btn { background: none; font-size: 13px; font-weight: 600; color: var(--orange); padding: 0; }
+
+.filter-section { margin-bottom: 20px; }
+.filter-section > label { display: block; font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.trade-filter-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.trade-filter-btn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--gray-200);
+  color: var(--gray-500);
+  background: #fff;
+  transition: all 0.15s;
+}
+.trade-filter-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+
+.rate-row { display: flex; align-items: center; gap: 8px; }
+.rate-row span { color: var(--gray-400); }
+.rate-row .form-control { padding: 9px 10px; }
+
+.radio-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-700); margin-bottom: 8px; cursor: pointer; }
+.radio-label input { accent-color: var(--orange); }
+.checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--gray-700); cursor: pointer; font-weight: 600; }
+.checkbox-label input { accent-color: var(--orange); width: 15px; height: 15px; }
+
+.results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.results-count { font-size: 14px; font-weight: 600; color: var(--gray-500); }
+.sort-select { width: auto; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+.results-list { display: flex; flex-direction: column; gap: 12px; }
+.loading-state { display: flex; justify-content: center; padding: 60px 0; }
+.empty-state { text-align: center; padding: 60px 0; }
+.empty-state h3 { font-size: 18px; font-weight: 700; margin: 12px 0 6px; }
+.empty-state p { color: var(--gray-500); font-size: 14px; }
+
+@media (max-width: 700px) {
+  .search-layout { grid-template-columns: 1fr; }
+  .search-sidebar { position: static; }
+}
