@@ -84,13 +84,42 @@ exports.updateStatus = (req, res, next) => {
     const job = db.prepare('SELECT * FROM job_requests WHERE id = ?').get(id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
 
-    // Tradesman can accept/decline; customer can mark completed
     if (role === 'tradesman' && job.tradesman_id !== userId) {
       return res.status(403).json({ error: 'Not your job request' });
     }
     if (role === 'customer' && job.customer_id !== userId) {
       return res.status(403).json({ error: 'Not your job request' });
     }
+
+    // ── Balance logic ────────────────────────────────────────────────────────
+
+    // pending → accepted: freeze offered_fee from customer's balance
+    if (status === 'accepted' && job.offered_fee) {
+      const customer = db.prepare('SELECT balance, frozen_balance FROM users WHERE id = ?').get(job.customer_id);
+      if (customer.balance < job.offered_fee) {
+        return res.status(400).json({
+          error: `Customer has insufficient balance (${customer.balance.toFixed(0)} TJS available, ${job.offered_fee} TJS required)`
+        });
+      }
+      db.prepare('UPDATE users SET balance = balance - ?, frozen_balance = frozen_balance + ? WHERE id = ?')
+        .run(job.offered_fee, job.offered_fee, job.customer_id);
+    }
+
+    // accepted → completed: unfreeze from customer, pay tradesman
+    if (status === 'completed' && job.status === 'accepted' && job.offered_fee) {
+      db.prepare('UPDATE users SET frozen_balance = frozen_balance - ? WHERE id = ?')
+        .run(job.offered_fee, job.customer_id);
+      db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?')
+        .run(job.offered_fee, job.tradesman_id);
+    }
+
+    // accepted → declined: unfreeze back to customer
+    if (status === 'declined' && job.status === 'accepted' && job.offered_fee) {
+      db.prepare('UPDATE users SET frozen_balance = frozen_balance - ?, balance = balance + ? WHERE id = ?')
+        .run(job.offered_fee, job.offered_fee, job.customer_id);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
 
     db.prepare('UPDATE job_requests SET status = ? WHERE id = ?').run(status, id);
     const updated = db.prepare('SELECT * FROM job_requests WHERE id = ?').get(id);

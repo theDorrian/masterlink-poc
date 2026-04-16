@@ -90,3 +90,98 @@ exports.me = (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateProfile = (req, res, next) => {
+  try {
+    const { userId, role } = req.user;
+    const { name, bio, city, trade, hourly_rate, call_out_fee, is_available, years_experience } = req.body;
+
+    if (name && name.trim()) {
+      db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name.trim(), userId);
+    }
+
+    if (role === 'tradesman') {
+      const cols = [], vals = [];
+      if (bio !== undefined)              { cols.push('bio = ?');              vals.push(bio); }
+      if (city)                           { cols.push('city = ?');             vals.push(city); }
+      if (trade)                          { cols.push('trade = ?');            vals.push(trade); }
+      if (hourly_rate !== undefined)      { cols.push('hourly_rate = ?');      vals.push(parseFloat(hourly_rate)); }
+      if (call_out_fee !== undefined)     { cols.push('call_out_fee = ?');     vals.push(parseFloat(call_out_fee)); }
+      if (is_available !== undefined)     { cols.push('is_available = ?');     vals.push(is_available ? 1 : 0); }
+      if (years_experience !== undefined) { cols.push('years_experience = ?'); vals.push(parseInt(years_experience)); }
+
+      if (cols.length > 0) {
+        vals.push(userId);
+        db.prepare(`UPDATE tradesman_profiles SET ${cols.join(', ')} WHERE user_id = ?`).run(...vals);
+      }
+    }
+
+    const user    = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    const profile = role === 'tradesman'
+      ? db.prepare('SELECT * FROM tradesman_profiles WHERE user_id = ?').get(userId)
+      : null;
+
+    res.json({ user: safeUser(user), profile });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.changePassword = (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'current_password and new_password are required' });
+    }
+    if (new_password.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    if (!bcrypt.compareSync(current_password, user.password_hash)) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+      .run(bcrypt.hashSync(new_password, 10), userId);
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.topUp = (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const amount = parseFloat(req.body.amount);
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be a positive number' });
+    }
+
+    db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, userId);
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+
+    res.json({ user: safeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.setPaymentMethod = (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { payment_method } = req.body;
+
+    db.prepare('UPDATE users SET payment_method = ? WHERE id = ?')
+      .run(payment_method || null, userId);
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+
+    res.json({ user: safeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+};

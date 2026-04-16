@@ -185,6 +185,10 @@ for (const r of reviewSpec) {
   });
 }
 
+// ─── Give customers starting balance ─────────────────────────────────────────
+
+db.prepare("UPDATE users SET balance = 5000 WHERE role = 'customer'").run();
+
 // ─── Recalculate tradesman ratings from actual reviews ────────────────────────
 
 const updateProfile = db.prepare(

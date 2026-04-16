@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL CHECK(role IN ('customer', 'tradesman')),
   avatar_url TEXT,
+  balance REAL NOT NULL DEFAULT 0,
+  frozen_balance REAL NOT NULL DEFAULT 0,
+  payment_method TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
