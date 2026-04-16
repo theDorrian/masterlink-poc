@@ -1,4 +1,4 @@
-.profile-wrap { display: flex; flex-direction: column; gap: 24px; max-width: 720px; }
+.profile-wrap { display: flex; flex-direction: column; gap: 24px; }
 
 .profile-card {}
 .profile-avatar-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
