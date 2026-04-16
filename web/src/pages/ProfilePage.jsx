@@ -100,7 +100,7 @@ export default function ProfilePage() {
                 )}
 
                 {job.offered_fee && (
-                  <div className="completed-fee">💰 {job.offered_fee} somoni</div>
+                  <div className="completed-fee">💰 {job.offered_fee} TJS</div>
                 )}
 
                 {role === 'customer' && job.tradesman_id && (

@@ -96,7 +96,7 @@ export default function MyJobsPage() {
               )}
               {job.description && <p className="job-desc">{job.description}</p>}
               {job.address && <p className="job-address">📍 {job.address}</p>}
-              {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} som</strong></p>}
+              {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} TJS</strong></p>}
 
               <div className="job-actions">
                 {role === 'tradesman' && job.status === 'pending' && (

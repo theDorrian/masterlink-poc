@@ -118,7 +118,7 @@ export default function JobRequestPage() {
             </div>
 
             <div className="form-group">
-              <label>Offered Fee (somoni, optional)</label>
+              <label>Offered Fee (TJS, optional)</label>
               <input className="form-control" type="number" placeholder="Your budget"
                 value={form.offered_fee} onChange={set('offered_fee')} />
             </div>
@@ -134,11 +134,11 @@ export default function JobRequestPage() {
             <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Pricing</h2>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
               <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Call-out fee</span>
-              <strong>{tradesman.call_out_fee || 50} som</strong>
+              <strong>{tradesman.call_out_fee || 50} TJS</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
               <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Hourly rate</span>
-              <strong>{tradesman.hourly_rate} som/hr</strong>
+              <strong>{tradesman.hourly_rate} TJS/hr</strong>
             </div>
             <p style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 12, lineHeight: 1.5 }}>
               Final price agreed after inspection. Payment only after completion.

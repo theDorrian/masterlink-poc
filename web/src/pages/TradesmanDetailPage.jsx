@@ -67,11 +67,11 @@ export default function TradesmanDetailPage() {
             <h2 className="section-h2">Pricing</h2>
             <div className="price-item">
               <span>Hourly Rate</span>
-              <strong>{hourly_rate} som/hr</strong>
+              <strong>{hourly_rate} TJS/hr</strong>
             </div>
             <div className="price-item">
               <span>Call-out Fee</span>
-              <strong>{call_out_fee || 50} som</strong>
+              <strong>{call_out_fee || 50} TJS</strong>
             </div>
             <p className="price-note">Final price agreed after inspection. Payment after completion.</p>
 
