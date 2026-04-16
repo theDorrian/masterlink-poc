@@ -53,17 +53,6 @@ export default function SearchPage() {
 
   return (
     <div className="search-page page-wrap">
-
-      {/* Top search bar */}
-      <div className="search-topbar">
-        <input
-          className="form-control search-input"
-          placeholder="Search by tradesman name..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-
       <div className="search-layout">
 
         {/* Sidebar Filters */}
@@ -72,6 +61,16 @@ export default function SearchPage() {
             <div className="sidebar-header">
               <h2>Filters</h2>
               <button type="button" className="reset-btn" onClick={handleReset}>Reset</button>
+            </div>
+
+            <div className="filter-section">
+              <label>Search</label>
+              <input
+                className="form-control"
+                placeholder="Tradesman name..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
             </div>
 
             <div className="filter-section">
