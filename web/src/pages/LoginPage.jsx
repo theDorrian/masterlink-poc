@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card card">
-        <div className="auth-logo">Master<span>L</span>ink</div>
+        <div className="auth-logo">Master<span>Link</span></div>
         <h1 className="auth-title">Welcome back</h1>
         <p className="auth-sub">Sign in to your account</p>
 

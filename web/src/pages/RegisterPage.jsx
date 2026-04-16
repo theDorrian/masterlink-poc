@@ -41,7 +41,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card card">
-        <div className="auth-logo">Master<span>L</span>ink</div>
+        <div className="auth-logo">Master<span>Link</span></div>
         <h1 className="auth-title">Create an account</h1>
 
         <div className="role-toggle">
