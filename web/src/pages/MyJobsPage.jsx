@@ -9,9 +9,16 @@ const STATUS_BADGE = {
   pending:   'badge-yellow',
   accepted:  'badge-green',
   declined:  'badge-red',
+  done:      'badge-orange',
   completed: 'badge-blue',
 };
-const STATUS_EN = { pending: 'Pending', accepted: 'Accepted', declined: 'Declined', completed: 'Completed' };
+const STATUS_EN = {
+  pending:   'Pending',
+  accepted:  'Accepted',
+  declined:  'Declined',
+  done:      'Done — Awaiting Payment',
+  completed: 'Completed',
+};
 
 export default function MyJobsPage() {
   const { role } = useAuth();
@@ -21,6 +28,7 @@ export default function MyJobsPage() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(location.state?.success);
   const [reviewModal, setReviewModal] = useState(null);
+  const [markDoneJob, setMarkDoneJob] = useState(null);
 
   const fetchJobs = async () => {
     try {
@@ -98,6 +106,12 @@ export default function MyJobsPage() {
               {job.address && <p className="job-address">📍 {job.address}</p>}
               {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} TJS</strong></p>}
 
+              {job.status === 'done' && job.final_fee > 0 && (
+                <div className="job-payment-summary">
+                  🕐 {job.hours_worked} hrs × {job.hourly_rate} TJS/hr = <strong>{job.final_fee} TJS</strong>
+                </div>
+              )}
+
               <div className="job-actions">
                 {role === 'tradesman' && job.status === 'pending' && (
                   <>
@@ -105,9 +119,14 @@ export default function MyJobsPage() {
                     <button className="btn btn-secondary btn-sm" onClick={() => handleStatus(job.id, 'declined')}>Decline</button>
                   </>
                 )}
-                {role === 'customer' && job.status === 'accepted' && (
+                {role === 'tradesman' && job.status === 'accepted' && (
+                  <button className="btn btn-primary btn-sm" onClick={() => setMarkDoneJob(job)}>
+                    Mark as Done
+                  </button>
+                )}
+                {role === 'customer' && job.status === 'done' && (
                   <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'completed')}>
-                    Mark as Complete
+                    ✅ Confirm &amp; Pay {job.final_fee ? `${job.final_fee} TJS` : ''}
                   </button>
                 )}
                 {role === 'customer' && job.status === 'completed' && (
@@ -124,6 +143,100 @@ export default function MyJobsPage() {
       {reviewModal && (
         <ReviewModal job={reviewModal} onClose={() => { setReviewModal(null); fetchJobs(); }} />
       )}
+      {markDoneJob && (
+        <MarkDoneModal job={markDoneJob} onClose={() => setMarkDoneJob(null)} onDone={() => { setMarkDoneJob(null); fetchJobs(); }} />
+      )}
+    </div>
+  );
+}
+
+function MarkDoneModal({ job, onClose, onDone }) {
+  const [hours, setHours] = useState('');
+  const [minutes, setMinutes] = useState('0');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const h = parseInt(hours) || 0;
+  const m = parseInt(minutes) || 0;
+  const totalHrs = h + m / 60;
+  const rate = job.hourly_rate || 0;
+  const total = totalHrs > 0 && rate > 0 ? Math.round(totalHrs * rate) : null;
+  const isValid = totalHrs > 0;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid) { setError('Enter at least 1 minute of work'); return; }
+    setLoading(true);
+    try {
+      await jobsApi.updateStatus(job.id, 'done', { hours_worked: parseFloat(totalHrs.toFixed(4)) });
+      onDone();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to mark as done');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card card" onClick={e => e.stopPropagation()}>
+        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Mark Job as Done</h2>
+        <p style={{ fontSize: 14, color: 'var(--gray-500)', marginBottom: 20 }}>
+          {job.title}
+        </p>
+
+        {error && <div className="error-msg">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, fontSize: 14 }}>
+            Time worked
+          </label>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <input
+                className="form-control"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="0"
+                value={hours}
+                onChange={e => { setHours(e.target.value); setError(''); }}
+              />
+              <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4, textAlign: 'center' }}>hours</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', paddingBottom: 20, fontWeight: 700, fontSize: 18 }}>:</div>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <select
+                className="form-control"
+                value={minutes}
+                onChange={e => { setMinutes(e.target.value); setError(''); }}
+              >
+                {[0,5,10,15,20,25,30,35,40,45,50,55].map(v => (
+                  <option key={v} value={v}>{String(v).padStart(2,'0')}</option>
+                ))}
+              </select>
+              <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4, textAlign: 'center' }}>minutes</div>
+            </div>
+          </div>
+
+          {total !== null && (
+            <div className="payment-preview" style={{ marginTop: 12 }}>
+              🕐 {h}h {m}m × {rate} TJS/hr = <strong>{total} TJS</strong>
+              <div style={{ fontSize: 13, color: 'var(--gray-600)', marginTop: 4 }}>
+                This amount will be frozen from the customer's balance.
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+            <button className="btn btn-primary" type="submit" disabled={loading || !isValid} style={{ flex: 1 }}>
+              {loading ? <span className="spinner" /> : 'Submit'}
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={onClose} style={{ flex: 1 }}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

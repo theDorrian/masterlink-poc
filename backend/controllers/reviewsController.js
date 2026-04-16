@@ -39,3 +39,20 @@ exports.create = (req, res, next) => {
     next(err);
   }
 };
+
+exports.mine = (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const reviews = db.prepare(`
+      SELECT r.*, u.name AS reviewer_name, jr.title AS job_title
+      FROM reviews r
+      JOIN users u ON u.id = r.reviewer_id
+      JOIN job_requests jr ON jr.id = r.job_id
+      WHERE r.reviewee_id = ?
+      ORDER BY r.created_at DESC
+    `).all(userId);
+    res.json({ reviews });
+  } catch (err) {
+    next(err);
+  }
+};
