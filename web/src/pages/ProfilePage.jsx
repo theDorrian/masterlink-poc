@@ -9,6 +9,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const [completedJobs, setCompletedJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     jobsApi.mine()
@@ -40,9 +41,9 @@ export default function ProfilePage() {
 
         <div className="profile-details">
           {[
-            ['Name',        user.name],
-            ['Email',       user.email],
-            ['Role',        role === 'tradesman' ? 'Tradesman' : 'Customer'],
+            ['Name',         user.name],
+            ['Email',        user.email],
+            ['Role',         role === 'tradesman' ? 'Tradesman' : 'Customer'],
             ['Member Since', new Date(user.created_at).toLocaleDateString('en-GB')],
           ].map(([label, value]) => (
             <div key={label} className="profile-row">
@@ -57,63 +58,75 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Completed jobs */}
-      <div className="profile-section">
-        <h2 className="page-title" style={{ marginBottom: 16 }}>Completed Jobs</h2>
+      {/* Completed jobs accordion */}
+      <div className="card accordion-card">
+        <button className="accordion-toggle" onClick={() => setOpen(o => !o)}>
+          <span className="accordion-title">
+            Completed Jobs
+            {!loadingJobs && completedJobs.length > 0 && (
+              <span className="accordion-count">{completedJobs.length}</span>
+            )}
+          </span>
+          <span className={`accordion-chevron ${open ? 'open' : ''}`}>▾</span>
+        </button>
 
-        {loadingJobs ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>
-            <span className="spinner spinner-dark" style={{ width: 28, height: 28 }} />
-          </div>
-        ) : completedJobs.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px 24px', color: 'var(--gray-400)' }}>
-            No completed jobs yet
-          </div>
-        ) : (
-          <div className="completed-list">
-            {completedJobs.map(job => (
-              <div key={job.id} className="card completed-job">
-                <div className="completed-header">
-                  <div>
-                    <div className="job-title-small">{job.title}</div>
-                    <div className="job-meta-small">
-                      {role === 'customer' ? (
-                        <span
-                          className="tradesman-link"
-                          onClick={() => navigate(`/tradesman/${job.tradesman_id}`)}
-                        >
-                          {job.tradesman_name} · {job.trade}
-                        </span>
-                      ) : (
-                        <>Customer: {job.customer_name}</>
-                      )}
-                      {job.city && <> · 📍 {job.city}</>}
-                    </div>
-                  </div>
-                  <span className="badge badge-blue">✓ Completed</span>
-                </div>
-
-                {job.scheduled_at && (
-                  <div className="completed-date">
-                    🗓 {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
-                  </div>
-                )}
-
-                {job.offered_fee && (
-                  <div className="completed-fee">💰 {job.offered_fee} TJS</div>
-                )}
-
-                {role === 'customer' && job.tradesman_id && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    style={{ marginTop: 10, alignSelf: 'start' }}
-                    onClick={() => navigate(`/tradesman/${job.tradesman_id}`)}
-                  >
-                    View Tradesman Profile →
-                  </button>
-                )}
+        {open && (
+          <div className="accordion-body">
+            {loadingJobs ? (
+              <div style={{ textAlign: 'center', padding: 32 }}>
+                <span className="spinner spinner-dark" style={{ width: 28, height: 28 }} />
               </div>
-            ))}
+            ) : completedJobs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--gray-400)', fontSize: 14 }}>
+                No completed jobs yet
+              </div>
+            ) : (
+              <div className="completed-list">
+                {completedJobs.map(job => (
+                  <div key={job.id} className="completed-job">
+                    <div className="completed-header">
+                      <div>
+                        <div className="job-title-small">{job.title}</div>
+                        <div className="job-meta-small">
+                          {role === 'customer' ? (
+                            <span
+                              className="tradesman-link"
+                              onClick={() => navigate(`/tradesman/${job.tradesman_id}`)}
+                            >
+                              {job.tradesman_name} · {job.trade}
+                            </span>
+                          ) : (
+                            <>Customer: {job.customer_name}</>
+                          )}
+                          {job.city && <> · 📍 {job.city}</>}
+                        </div>
+                      </div>
+                      <span className="badge badge-blue">✓ Completed</span>
+                    </div>
+
+                    {job.scheduled_at && (
+                      <div className="completed-date">
+                        🗓 {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
+                      </div>
+                    )}
+
+                    {job.offered_fee && (
+                      <div className="completed-fee">💰 {job.offered_fee} TJS</div>
+                    )}
+
+                    {role === 'customer' && job.tradesman_id && (
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        style={{ marginTop: 10 }}
+                        onClick={() => navigate(`/tradesman/${job.tradesman_id}`)}
+                      >
+                        View Tradesman Profile →
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
