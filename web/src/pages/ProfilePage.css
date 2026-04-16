@@ -38,3 +38,12 @@
 .job-meta-small { font-size: 13px; color: var(--gray-500); }
 .completed-date { font-size: 13px; color: var(--gray-500); margin-bottom: 4px; }
 .completed-fee { font-size: 14px; font-weight: 600; color: var(--gray-700); }
+
+.tradesman-link {
+  color: var(--orange);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.tradesman-link:hover { opacity: 0.8; }
