@@ -152,19 +152,23 @@ export default function MyJobsPage() {
 
 function MarkDoneModal({ job, onClose, onDone }) {
   const [hours, setHours] = useState('');
+  const [minutes, setMinutes] = useState('0');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const hrs = parseFloat(hours);
+  const h = parseInt(hours) || 0;
+  const m = parseInt(minutes) || 0;
+  const totalHrs = h + m / 60;
   const rate = job.hourly_rate || 0;
-  const total = hrs > 0 && rate > 0 ? Math.round(hrs * rate) : null;
+  const total = totalHrs > 0 && rate > 0 ? Math.round(totalHrs * rate) : null;
+  const isValid = totalHrs > 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!hrs || hrs <= 0) { setError('Enter a valid number of hours'); return; }
+    if (!isValid) { setError('Enter at least 1 minute of work'); return; }
     setLoading(true);
     try {
-      await jobsApi.updateStatus(job.id, 'done', { hours_worked: hrs });
+      await jobsApi.updateStatus(job.id, 'done', { hours_worked: parseFloat(totalHrs.toFixed(4)) });
       onDone();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to mark as done');
@@ -183,30 +187,48 @@ function MarkDoneModal({ job, onClose, onDone }) {
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Hours worked</label>
-            <input
-              className="form-control"
-              type="number"
-              min="0.5"
-              step="0.5"
-              placeholder="e.g. 3.5"
-              value={hours}
-              onChange={e => { setHours(e.target.value); setError(''); }}
-            />
+          <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, fontSize: 14 }}>
+            Time worked
+          </label>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <input
+                className="form-control"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="0"
+                value={hours}
+                onChange={e => { setHours(e.target.value); setError(''); }}
+              />
+              <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4, textAlign: 'center' }}>hours</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', paddingBottom: 20, fontWeight: 700, fontSize: 18 }}>:</div>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <select
+                className="form-control"
+                value={minutes}
+                onChange={e => { setMinutes(e.target.value); setError(''); }}
+              >
+                {[0,5,10,15,20,25,30,35,40,45,50,55].map(v => (
+                  <option key={v} value={v}>{String(v).padStart(2,'0')}</option>
+                ))}
+              </select>
+              <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4, textAlign: 'center' }}>minutes</div>
+            </div>
           </div>
 
           {total !== null && (
-            <div className="payment-preview">
-              🕐 {hrs} hrs × {rate} TJS/hr = <strong>{total} TJS</strong>
-              <div style={{ fontSize: 13, color: 'var(--gray-500)', marginTop: 4 }}>
-                This amount will be frozen from the customer's balance until they confirm.
+            <div className="payment-preview" style={{ marginTop: 12 }}>
+              🕐 {h}h {m}m × {rate} TJS/hr = <strong>{total} TJS</strong>
+              <div style={{ fontSize: 13, color: 'var(--gray-600)', marginTop: 4 }}>
+                This amount will be frozen from the customer's balance.
               </div>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button className="btn btn-primary" type="submit" disabled={loading || !total} style={{ flex: 1 }}>
+            <button className="btn btn-primary" type="submit" disabled={loading || !isValid} style={{ flex: 1 }}>
               {loading ? <span className="spinner" /> : 'Submit'}
             </button>
             <button className="btn btn-secondary" type="button" onClick={onClose} style={{ flex: 1 }}>
