@@ -6,7 +6,6 @@ import './JobRequestPage.css';
 function defaultSchedule() {
   const d = new Date();
   d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30, 0, 0);
-  // формат для datetime-local: YYYY-MM-DDTHH:MM
   return d.toISOString().slice(0, 16);
 }
 
@@ -45,7 +44,7 @@ export default function JobRequestPage() {
       });
       navigate('/my-jobs', { state: { success: true } });
     } catch (err) {
-      setError(err.response?.data?.error || 'Что-то пошло не так');
+      setError(err.response?.data?.error || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -53,11 +52,11 @@ export default function JobRequestPage() {
 
   return (
     <div className="page-wrap">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Назад</button>
+      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
       <div className="job-request-layout">
         <div className="card" style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Заявка на услугу</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Service Request</h1>
 
           {tradesman && (
             <div className="request-tradesman">
@@ -73,22 +72,22 @@ export default function JobRequestPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Название заявки *</label>
-              <input className="form-control" placeholder="Например: Протечка трубы под раковиной"
+              <label>Job Title *</label>
+              <input className="form-control" placeholder="e.g. Leaking pipe under kitchen sink"
                 value={form.title} onChange={set('title')} required />
             </div>
 
             <div className="form-group">
-              <label>Описание проблемы</label>
+              <label>Problem Description</label>
               <textarea className="form-control" rows={4}
-                placeholder="Опишите проблему подробнее. Когда началась? Что случилось?"
+                placeholder="Describe the problem in detail. When did it start? What happened?"
                 value={form.description} onChange={set('description')} />
             </div>
 
             <div className="form-group">
-              <label>Срочность</label>
+              <label>Urgency</label>
               <div className="urgency-btns">
-                {[['emergency', '⚡ Срочно', 'red'], ['flexible', '📅 Планово', 'blue']].map(([val, label, color]) => (
+                {[['emergency', '⚡ Emergency', 'red'], ['flexible', '📅 Scheduled', 'blue']].map(([val, label, color]) => (
                   <button key={val} type="button"
                     className={`urgency-btn ${form.urgency === val ? 'active active-' + color : ''}`}
                     onClick={() => setForm(f => ({ ...f, urgency: val }))}>
@@ -99,7 +98,7 @@ export default function JobRequestPage() {
             </div>
 
             <div className="form-group">
-              <label>📅 Дата и время визита</label>
+              <label>📅 Preferred Date &amp; Time</label>
               <input
                 className="form-control"
                 type="datetime-local"
@@ -108,41 +107,41 @@ export default function JobRequestPage() {
                 min={new Date().toISOString().slice(0, 16)}
               />
               <span style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
-                По умолчанию — ближайшее удобное время
+                Defaults to next available slot
               </span>
             </div>
 
             <div className="form-group">
-              <label>Адрес</label>
-              <input className="form-control" placeholder="Например: ул. Рудаки 45, кв. 12, Душанбе"
+              <label>Address</label>
+              <input className="form-control" placeholder="e.g. Rudaki Ave 45, apt 12, Dushanbe"
                 value={form.address} onChange={set('address')} />
             </div>
 
             <div className="form-group">
-              <label>Предлагаемая оплата (сомони, необязательно)</label>
-              <input className="form-control" type="number" placeholder="Ваш бюджет"
+              <label>Offered Fee (TJS, optional)</label>
+              <input className="form-control" type="number" placeholder="Your budget"
                 value={form.offered_fee} onChange={set('offered_fee')} />
             </div>
 
             <button className="btn btn-primary btn-lg" type="submit" style={{ width: '100%' }} disabled={loading}>
-              {loading ? <span className="spinner" /> : 'Отправить заявку ✈'}
+              {loading ? <span className="spinner" /> : 'Submit Request ✈'}
             </button>
           </form>
         </div>
 
         {tradesman && (
           <div className="card job-pricing-summary" style={{ alignSelf: 'start' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Стоимость</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Pricing</h2>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
-              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Выезд (ориент.)</span>
-              <strong>{tradesman.call_out_fee || 50} сом</strong>
+              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Call-out fee</span>
+              <strong>{tradesman.call_out_fee || 50} TJS</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
-              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Почасовая ставка</span>
-              <strong>{tradesman.hourly_rate} сом/ч</strong>
+              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Hourly rate</span>
+              <strong>{tradesman.hourly_rate} TJS/hr</strong>
             </div>
             <p style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 12, lineHeight: 1.5 }}>
-              Окончательная цена определяется после осмотра. Оплата только после выполнения работы.
+              Final price agreed after inspection. Payment only after completion.
             </p>
           </div>
         )}
