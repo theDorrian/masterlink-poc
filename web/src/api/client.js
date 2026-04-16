@@ -24,18 +24,27 @@ client.interceptors.response.use(
 export default client;
 
 export const authApi = {
-  register: (data) => client.post('/api/auth/register', data),
-  login: (data) => client.post('/api/auth/login', data),
-  me: () => client.get('/api/auth/me'),
+  register:         (data)   => client.post('/api/auth/register', data),
+  login:            (data)   => client.post('/api/auth/login', data),
+  me:               ()       => client.get('/api/auth/me'),
+  updateProfile:    (data)   => client.put('/api/auth/profile', data),
+  changePassword:   (data)   => client.put('/api/auth/password', data),
+  topUp:            (amount) => client.post('/api/auth/topup', { amount }),
+  withdraw:         (amount) => client.post('/api/auth/withdraw', { amount }),
+  setPaymentMethod: (method) => client.put('/api/auth/payment-method', { payment_method: method }),
+};
+
+export const reviewsApi = {
+  mine: () => client.get('/api/reviews/mine'),
 };
 
 export const tradesmensApi = {
-  list: (params = {}) => client.get('/api/tradesmen', { params }),
-  getById: (id) => client.get(`/api/tradesmen/${id}`),
+  list:    (params = {}) => client.get('/api/tradesmen', { params }),
+  getById: (id)          => client.get(`/api/tradesmen/${id}`),
 };
 
 export const jobsApi = {
-  create: (data) => client.post('/api/jobs', data),
-  mine: () => client.get('/api/jobs/mine'),
-  updateStatus: (id, status) => client.patch(`/api/jobs/${id}/status`, { status }),
+  create:       (data)         => client.post('/api/jobs', data),
+  mine:         ()             => client.get('/api/jobs/mine'),
+  updateStatus: (id, status, extra = {}) => client.patch(`/api/jobs/${id}/status`, { status, ...extra }),
 };

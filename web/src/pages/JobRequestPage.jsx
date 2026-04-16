@@ -90,26 +90,28 @@ export default function JobRequestPage() {
                 {[['emergency', '⚡ Emergency', 'red'], ['flexible', '📅 Scheduled', 'blue']].map(([val, label, color]) => (
                   <button key={val} type="button"
                     className={`urgency-btn ${form.urgency === val ? 'active active-' + color : ''}`}
-                    onClick={() => setForm(f => ({ ...f, urgency: val }))}>
+                    onClick={() => setForm(f => ({ ...f, urgency: val, scheduled_at: val === 'emergency' ? '' : f.scheduled_at || defaultSchedule() }))}>
                     {label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="form-group">
-              <label>📅 Preferred Date &amp; Time</label>
-              <input
-                className="form-control"
-                type="datetime-local"
-                value={form.scheduled_at}
-                onChange={set('scheduled_at')}
-                min={new Date().toISOString().slice(0, 16)}
-              />
-              <span style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
-                Defaults to next available slot
-              </span>
-            </div>
+            {form.urgency !== 'emergency' && (
+              <div className="form-group">
+                <label>📅 Preferred Date &amp; Time</label>
+                <input
+                  className="form-control"
+                  type="datetime-local"
+                  value={form.scheduled_at}
+                  onChange={set('scheduled_at')}
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+                <span style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
+                  Defaults to next available slot
+                </span>
+              </div>
+            )}
 
             <div className="form-group">
               <label>Address</label>

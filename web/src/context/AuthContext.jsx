@@ -29,8 +29,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshUser = () =>
+    authApi.me().then(res => { setUser(res.data.user); return res.data; });
+
   return (
-    <AuthContext.Provider value={{ user, role: user?.role, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, role: user?.role, loading, login, logout, refreshUser, setUser }}>
       {children}
     </AuthContext.Provider>
   );
