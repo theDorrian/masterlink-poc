@@ -3,7 +3,7 @@ import { tradesmensApi } from '../api/client';
 import TradesmanCard from '../components/TradesmanCard';
 import './SearchPage.css';
 
-const TRADES = ['All', 'Plumber', 'Electrician', 'Carpenter', 'Painter', 'Builder', 'Tiler'];
+const TRADES = ['Все', 'Сантехник', 'Электрик', 'Плотник', 'Маляр', 'Строитель', 'Плиточник'];
 
 export default function SearchPage() {
   const [tradesmen, setTradesmen] = useState([]);
@@ -57,17 +57,17 @@ export default function SearchPage() {
             </div>
 
             <div className="filter-section">
-              <label>City</label>
-              <input className="form-control" placeholder="e.g. London" value={filters.city} onChange={set('city')} />
+              <label>Город</label>
+              <input className="form-control" placeholder="Душанбе или Хуҷанд" value={filters.city} onChange={set('city')} />
             </div>
 
             <div className="filter-section">
-              <label>Trade</label>
+              <label>Специальность</label>
               <div className="trade-filter-grid">
                 {TRADES.map(t => (
                   <button key={t} type="button"
-                    className={`trade-filter-btn ${(filters.trade === t || (t === 'All' && !filters.trade)) ? 'active' : ''}`}
-                    onClick={() => setFilters(f => ({ ...f, trade: t === 'All' ? '' : t }))}>
+                    className={`trade-filter-btn ${(filters.trade === t || (t === 'Все' && !filters.trade)) ? 'active' : ''}`}
+                    onClick={() => setFilters(f => ({ ...f, trade: t === 'Все' ? '' : t }))}>
                     {t}
                   </button>
                 ))}
@@ -75,16 +75,16 @@ export default function SearchPage() {
             </div>
 
             <div className="filter-section">
-              <label>Hourly Rate (£)</label>
+              <label>Ставка (сомони/ч)</label>
               <div className="rate-row">
-                <input className="form-control" type="number" placeholder="Min" value={filters.min_rate} onChange={set('min_rate')} />
+                <input className="form-control" type="number" placeholder="От" value={filters.min_rate} onChange={set('min_rate')} />
                 <span>–</span>
-                <input className="form-control" type="number" placeholder="Max" value={filters.max_rate} onChange={set('max_rate')} />
+                <input className="form-control" type="number" placeholder="До" value={filters.max_rate} onChange={set('max_rate')} />
               </div>
             </div>
 
             <div className="filter-section">
-              <label>Min Rating</label>
+              <label>Мин. рейтинг</label>
               {[['⭐⭐⭐⭐⭐ 5.0', '5'], ['⭐⭐⭐⭐ 4.0+', '4'], ['⭐⭐⭐ 3.0+', '3']].map(([label, val]) => (
                 <label key={val} className="radio-label">
                   <input type="radio" name="rating" value={val}
@@ -99,12 +99,12 @@ export default function SearchPage() {
               <label className="checkbox-label">
                 <input type="checkbox" checked={!!filters.available}
                   onChange={e => setFilters(f => ({ ...f, available: e.target.checked ? '1' : '' }))} />
-                Available Now only
+                Только доступные сейчас
               </label>
             </div>
 
             <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 8 }}>
-              Apply Filters
+              Применить
             </button>
           </form>
         </aside>
@@ -113,13 +113,13 @@ export default function SearchPage() {
         <main className="search-results">
           <div className="results-header">
             <span className="results-count">
-              {loading ? 'Loading...' : `${tradesmen.length} tradesmen found`}
+              {loading ? 'Загрузка...' : `Найдено мастеров: ${tradesmen.length}`}
             </span>
             <select className="form-control sort-select" value={sortKey} onChange={e => setSortKey(e.target.value)}>
-              <option value="rating_desc">Sort: Highest Rated</option>
-              <option value="rate_asc">Sort: Rate (Low → High)</option>
-              <option value="rate_desc">Sort: Rate (High → Low)</option>
-              <option value="available">Sort: Available First</option>
+              <option value="rating_desc">По рейтингу</option>
+              <option value="rate_asc">По цене (дешевле)</option>
+              <option value="rate_desc">По цене (дороже)</option>
+              <option value="available">Сначала доступные</option>
             </select>
           </div>
 

@@ -21,6 +21,8 @@ client.interceptors.response.use(
   }
 );
 
+export default client;
+
 export const authApi = {
   register: (data) => client.post('/api/auth/register', data),
   login: (data) => client.post('/api/auth/login', data),

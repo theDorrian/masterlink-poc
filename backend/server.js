@@ -17,6 +17,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'MasterLink A
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tradesmen', require('./routes/tradesmen'));
 app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/reviews', require('./routes/reviews'));
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
