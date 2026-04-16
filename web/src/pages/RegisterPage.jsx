@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/client';
 import './AuthPages.css';
 
-const TRADES = ['Сантехник', 'Электрик', 'Плотник', 'Маляр', 'Строитель', 'Плиточник', 'Отделочник'];
+const TRADES = ['Plumber', 'Electrician', 'Carpenter', 'Painter', 'Builder', 'Tiler'];
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -41,8 +41,8 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card card">
-        <div className="auth-logo">Master<span>L</span>ink</div>
-        <h1 className="auth-title">Создать аккаунт</h1>
+        <div className="auth-logo">Master<span>Link</span></div>
+        <h1 className="auth-title">Create an account</h1>
 
         <div className="role-toggle">
           <button type="button"
@@ -85,13 +85,13 @@ export default function RegisterPage() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Почасовая ставка (сомони)</label>
-                  <input className="form-control" type="number" placeholder="Например: 120"
+                  <label>Hourly rate (TJS)</label>
+                  <input className="form-control" type="number" placeholder="e.g. 120"
                     value={form.hourly_rate} onChange={set('hourly_rate')} required />
                 </div>
                 <div className="form-group">
                   <label>City</label>
-                  <input className="form-control" placeholder="e.g. London"
+                  <input className="form-control" placeholder="e.g. Dushanbe"
                     value={form.city} onChange={set('city')} required />
                 </div>
               </div>
@@ -99,13 +99,13 @@ export default function RegisterPage() {
           )}
 
           <button className="btn btn-primary btn-lg auth-btn" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Создать аккаунт'}
+            {loading ? <span className="spinner" /> : 'Create Account'}
           </button>
         </form>
 
-        <div className="auth-divider"><span>или</span></div>
-        <p className="auth-switch">Уже есть аккаунт?{' '}
-          <Link to="/login">Войти</Link>
+        <div className="auth-divider"><span>or</span></div>
+        <p className="auth-switch">Already have an account?{' '}
+          <Link to="/login">Log In</Link>
         </p>
       </div>
     </div>
