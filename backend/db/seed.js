@@ -4,7 +4,6 @@ const db = require('./database');
 
 console.log('🌱 Seeding MasterLink database...');
 
-// Clear existing data
 db.exec(`
   DELETE FROM reviews;
   DELETE FROM job_requests;
@@ -14,38 +13,37 @@ db.exec(`
 
 const hashPassword = (pwd) => bcrypt.hashSync(pwd, 10);
 
-// --- Users ---
 const insertUser = db.prepare(`
   INSERT INTO users (name, email, password_hash, role, avatar_url)
   VALUES (@name, @email, @password_hash, @role, @avatar_url)
 `);
 
-// 2 customers
-const alice = insertUser.run({
-  name: 'Alice Thompson',
-  email: 'alice@example.com',
+// 2 клиента
+const sarvinoz = insertUser.run({
+  name: 'Сарвиноз Ҳасанова',
+  email: 'sarvinoz@example.com',
   password_hash: hashPassword('password123'),
   role: 'customer',
   avatar_url: null,
 });
-const bob = insertUser.run({
-  name: 'Bob Williams',
-  email: 'bob@example.com',
+const alisher = insertUser.run({
+  name: 'Алишер Тошматов',
+  email: 'alisher@example.com',
   password_hash: hashPassword('password123'),
   role: 'customer',
   avatar_url: null,
 });
 
-// 8 tradesmen
-const tradsemenData = [
-  { name: 'Mike Johnson',   email: 'mike.j@example.com',  trade: 'Plumber',      city: 'London',      lat: 51.5074, lng: -0.1278, rate: 75, cof: 50, rating: 4.8, reviews: 120, avail: 1, exp: 12, bio: 'Master Plumber with 12 years experience. Specialising in emergency repairs and bathroom installations.' },
-  { name: 'David Chen',     email: 'david.c@example.com', trade: 'Electrician',  city: 'London',      lat: 51.5200, lng: -0.1000, rate: 80, cof: 60, rating: 4.9, reviews: 94,  avail: 1, exp: 8,  bio: 'Certified electrician, domestic & commercial. Available for same-day call-outs.' },
-  { name: 'Robert Smith',   email: 'robert.s@example.com',trade: 'Carpenter',    city: 'London',      lat: 51.4900, lng: -0.1500, rate: 65, cof: 40, rating: 4.7, reviews: 215, avail: 0, exp: 15, bio: 'Expert carpenter crafting bespoke furniture, decking, and full room renovations.' },
-  { name: 'Sarah O\'Brien', email: 'sarah.o@example.com', trade: 'Electrician',  city: 'Manchester',  lat: 53.4808, lng: -2.2426, rate: 85, cof: 55, rating: 4.3, reviews: 67,  avail: 0, exp: 6,  bio: 'Fully qualified electrician. Domestic rewires, consumer units, and EV charger installations.' },
-  { name: 'Tom Murphy',     email: 'tom.m@example.com',   trade: 'Plumber',      city: 'Manchester',  lat: 53.4900, lng: -2.2300, rate: 65, cof: 45, rating: 4.5, reviews: 88,  avail: 1, exp: 10, bio: 'Reliable and affordable plumbing for the Manchester area. No job too small.' },
-  { name: 'Aisha Patel',    email: 'aisha.p@example.com', trade: 'Painter',      city: 'London',      lat: 51.5100, lng: -0.0900, rate: 45, cof: 30, rating: 4.6, reviews: 143, avail: 1, exp: 7,  bio: 'Interior and exterior painting with attention to detail. Free quotations available.' },
-  { name: 'Lucas Ferrari',  email: 'lucas.f@example.com', trade: 'Carpenter',    city: 'Birmingham',  lat: 52.4862, lng: -1.8904, rate: 70, cof: 50, rating: 4.1, reviews: 52,  avail: 1, exp: 5,  bio: 'Carpenter specialising in fitted kitchens, wardrobes, and loft conversions.' },
-  { name: 'Yuki Tanaka',    email: 'yuki.t@example.com',  trade: 'Painter',      city: 'London',      lat: 51.4800, lng: -0.1200, rate: 50, cof: 35, rating: 3.9, reviews: 38,  avail: 0, exp: 3,  bio: 'Painting and decorating specialist. Wallpaper hanging, coving, and feature walls.' },
+// 8 мастеров
+const tradesmensData = [
+  { name: 'Рустам Назаров',       email: 'rustam.n@example.com',   trade: 'Сантехник',    city: 'Душанбе',  lat: 38.5598, lng: 68.7739, rate: 120, cof: 50,  rating: 4.8, reviews: 87,  avail: 1, exp: 10, bio: 'Мастер-сантехник с 10-летним стажем. Устранение аварий, установка сантехники, замена труб.' },
+  { name: 'Фирӯз Раҳимов',        email: 'firuz.r@example.com',    trade: 'Электрик',     city: 'Душанбе',  lat: 38.5700, lng: 68.7800, rate: 150, cof: 60,  rating: 4.9, reviews: 112, avail: 1, exp: 8,  bio: 'Сертифицированный электрик. Монтаж электропроводки, установка розеток и щитков.' },
+  { name: 'Баҳром Каримов',       email: 'bahrom.k@example.com',   trade: 'Плотник',      city: 'Душанбе',  lat: 38.5500, lng: 68.7600, rate: 100, cof: 40,  rating: 4.7, reviews: 203, avail: 0, exp: 15, bio: 'Опытный плотник. Мебель на заказ, двери, окна, отделочные работы.' },
+  { name: 'Шерзод Мирзоев',       email: 'sherzod.m@example.com',  trade: 'Электрик',     city: 'Хуҷанд',   lat: 40.2839, lng: 69.6214, rate: 130, cof: 55,  rating: 4.3, reviews: 54,  avail: 0, exp: 6,  bio: 'Электромонтажные работы в Хуҷанде. Быстро и качественно.' },
+  { name: 'Умед Сафаров',         email: 'umed.s@example.com',     trade: 'Сантехник',    city: 'Хуҷанд',   lat: 40.2900, lng: 69.6300, rate: 100, cof: 45,  rating: 4.5, reviews: 76,  avail: 1, exp: 7,  bio: 'Надёжный сантехник в Хуҷанде. Любые работы с водопроводом и канализацией.' },
+  { name: 'Нилуфар Раҳматуллаева', email: 'nilufar.r@example.com', trade: 'Маляр',        city: 'Душанбе',  lat: 38.5650, lng: 68.7700, rate: 80,  cof: 30,  rating: 4.6, reviews: 131, avail: 1, exp: 5,  bio: 'Покраска стен, поклейка обоев, декоративная отделка. Аккуратно и в срок.' },
+  { name: 'Комил Давлатов',       email: 'komil.d@example.com',    trade: 'Плотник',      city: 'Хуҷанд',   lat: 40.2800, lng: 69.6100, rate: 110, cof: 50,  rating: 4.1, reviews: 42,  avail: 1, exp: 4,  bio: 'Плотник в Хуҷанде. Кухни на заказ, шкафы-купе, ремонт мебели.' },
+  { name: 'Дилноза Юсупова',      email: 'dilnoza.y@example.com',  trade: 'Маляр',        city: 'Душанбе',  lat: 38.5480, lng: 68.7580, rate: 75,  cof: 30,  rating: 3.9, reviews: 28,  avail: 0, exp: 3,  bio: 'Малярные работы: покраска, шпаклёвка, выравнивание стен.' },
 ];
 
 const insertProfile = db.prepare(`
@@ -54,7 +52,7 @@ const insertProfile = db.prepare(`
 `);
 
 const tradesmanIds = [];
-for (const t of tradsemenData) {
+for (const t of tradesmensData) {
   const userRow = insertUser.run({
     name: t.name,
     email: t.email,
@@ -79,69 +77,73 @@ for (const t of tradsemenData) {
   tradesmanIds.push(userRow.lastInsertRowid);
 }
 
-// --- Job Requests ---
+// Заявки
 const insertJob = db.prepare(`
-  INSERT INTO job_requests (customer_id, tradesman_id, title, description, address, city, urgency, offered_fee, status, photos_json)
-  VALUES (@customer_id, @tradesman_id, @title, @description, @address, @city, @urgency, @offered_fee, @status, @photos_json)
+  INSERT INTO job_requests (customer_id, tradesman_id, title, description, address, city, urgency, offered_fee, status, scheduled_at, photos_json)
+  VALUES (@customer_id, @tradesman_id, @title, @description, @address, @city, @urgency, @offered_fee, @status, @scheduled_at, @photos_json)
 `);
 
 const job1 = insertJob.run({
-  customer_id: alice.lastInsertRowid,
-  tradesman_id: tradesmanIds[0], // Mike Johnson
-  title: 'Leaking pipe under kitchen sink',
-  description: 'The pipe under the kitchen sink has been dripping for 2 days. Water damage starting on cabinet floor.',
-  address: '14 Baker Street, Apt 3',
-  city: 'London',
+  customer_id: sarvinoz.lastInsertRowid,
+  tradesman_id: tradesmanIds[0],
+  title: 'Протечка трубы под раковиной',
+  description: 'Труба под кухонной раковиной течёт уже 2 дня. Намокает пол.',
+  address: 'ул. Рудаки 45, кв. 12',
+  city: 'Душанбе',
   urgency: 'emergency',
-  offered_fee: 120,
+  offered_fee: 200,
   status: 'accepted',
+  scheduled_at: new Date(Date.now() + 86400000).toISOString(),
   photos_json: '[]',
 });
 
 const job2 = insertJob.run({
-  customer_id: alice.lastInsertRowid,
-  tradesman_id: tradesmanIds[1], // David Chen
-  title: 'Install new light fixtures in living room',
-  description: 'Need 4 recessed lights installed in living room ceiling. Existing wiring is in place.',
-  address: '14 Baker Street, Apt 3',
-  city: 'London',
+  customer_id: sarvinoz.lastInsertRowid,
+  tradesman_id: tradesmanIds[1],
+  title: 'Установка новых светильников',
+  description: 'Нужно установить 4 точечных светильника в гостиной. Проводка есть.',
+  address: 'ул. Рудаки 45, кв. 12',
+  city: 'Душанбе',
   urgency: 'flexible',
-  offered_fee: 200,
+  offered_fee: 300,
   status: 'pending',
+  scheduled_at: new Date(Date.now() + 3 * 86400000).toISOString(),
   photos_json: '[]',
 });
 
-insertJob.run({
-  customer_id: bob.lastInsertRowid,
-  tradesman_id: tradesmanIds[4], // Tom Murphy
-  title: 'Boiler service and annual check',
-  description: 'Annual boiler service needed. Combi boiler, 5 years old, no major issues just routine maintenance.',
-  address: '7 Oxford Road',
-  city: 'Manchester',
+const job3 = insertJob.run({
+  customer_id: alisher.lastInsertRowid,
+  tradesman_id: tradesmanIds[4],
+  title: 'Замена смесителя в ванной',
+  description: 'Старый смеситель сломался. Нужна замена на новый.',
+  address: 'пр. Исмоил Сомони 22',
+  city: 'Хуҷанд',
   urgency: 'flexible',
-  offered_fee: 90,
+  offered_fee: 150,
   status: 'completed',
+  scheduled_at: new Date(Date.now() - 5 * 86400000).toISOString(),
   photos_json: '[]',
 });
 
-// --- Reviews ---
+// Отзывы
 const insertReview = db.prepare(`
   INSERT INTO reviews (job_id, reviewer_id, reviewee_id, rating, comment)
   VALUES (@job_id, @reviewer_id, @reviewee_id, @rating, @comment)
 `);
 
 insertReview.run({
-  job_id: job2.lastInsertRowid - 1, // job3 is the completed one (lastInsertRowid from bob's job)
-  reviewer_id: bob.lastInsertRowid,
+  job_id: job3.lastInsertRowid,
+  reviewer_id: alisher.lastInsertRowid,
   reviewee_id: tradesmanIds[4],
   rating: 5,
-  comment: 'Tom was punctual, professional and thorough. Highly recommend!',
+  comment: 'Умед приехал вовремя, работу сделал быстро и аккуратно. Очень доволен!',
 });
 
-console.log('✅ Seed complete!');
+console.log('✅ Seed завершён!');
 console.log('');
-console.log('Demo accounts (password: password123):');
-console.log('  Customer:   alice@example.com');
-console.log('  Customer:   bob@example.com');
-console.log('  Tradesman:  mike.j@example.com  (Mike Johnson - Plumber)');
-console.log('  Tradesman:  david.c@example.com (David Chen - Electrician)');
+console.log('Демо аккаунты (пароль: password123):');
+console.log('  Клиент:   sarvinoz@example.com');
+console.log('  Клиент:   alisher@example.com');
+console.log('  Мастер:   rustam.n@example.com   (Рустам - Сантехник)');
+console.log('  Мастер:   firuz.r@example.com    (Фирӯз - Электрик)');
+console.log('  Мастер:   nilufar.r@example.com  (Нилуфар - Маляр)');

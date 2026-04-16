@@ -3,13 +3,27 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { jobsApi } from '../api/client';
 import './JobRequestPage.css';
 
+function defaultSchedule() {
+  const d = new Date();
+  d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30, 0, 0);
+  // формат для datetime-local: YYYY-MM-DDTHH:MM
+  return d.toISOString().slice(0, 16);
+}
+
 export default function JobRequestPage() {
   const { tradesmanId } = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
   const tradesman = state?.tradesman;
 
-  const [form, setForm] = useState({ title: '', description: '', address: '', urgency: 'flexible', offered_fee: '' });
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    address: '',
+    urgency: 'flexible',
+    offered_fee: '',
+    scheduled_at: defaultSchedule(),
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,10 +41,11 @@ export default function JobRequestPage() {
         address: form.address,
         urgency: form.urgency,
         offered_fee: form.offered_fee ? parseFloat(form.offered_fee) : null,
+        scheduled_at: form.scheduled_at || null,
       });
       navigate('/my-jobs', { state: { success: true } });
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong');
+      setError(err.response?.data?.error || 'Что-то пошло не так');
     } finally {
       setLoading(false);
     }
@@ -38,13 +53,12 @@ export default function JobRequestPage() {
 
   return (
     <div className="page-wrap">
-      <button className="back-btn" onClick={() => navigate(-1)} style={{ background: 'none', fontSize: 14, fontWeight: 600, color: 'var(--gray-500)', marginBottom: 20, padding: 0, cursor: 'pointer', border: 'none' }}>
-        ← Back
-      </button>
+      <button className="back-btn" onClick={() => navigate(-1)}>← Назад</button>
 
       <div className="job-request-layout">
         <div className="card" style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Job Request</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Заявка на услугу</h1>
+
           {tradesman && (
             <div className="request-tradesman">
               <div className="req-avatar">{tradesman.name?.[0]}</div>
@@ -59,22 +73,22 @@ export default function JobRequestPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Job Title *</label>
-              <input className="form-control" placeholder="e.g. Leaking pipe under kitchen sink"
+              <label>Название заявки *</label>
+              <input className="form-control" placeholder="Например: Протечка трубы под раковиной"
                 value={form.title} onChange={set('title')} required />
             </div>
 
             <div className="form-group">
-              <label>Detailed Description</label>
+              <label>Описание проблемы</label>
               <textarea className="form-control" rows={4}
-                placeholder="Describe the issue in detail. When did it start? Any relevant info?"
+                placeholder="Опишите проблему подробнее. Когда началась? Что случилось?"
                 value={form.description} onChange={set('description')} />
             </div>
 
             <div className="form-group">
-              <label>Urgency</label>
+              <label>Срочность</label>
               <div className="urgency-btns">
-                {[['emergency', '⚡ Emergency', 'red'], ['flexible', '📅 Flexible', 'blue']].map(([val, label, color]) => (
+                {[['emergency', '⚡ Срочно', 'red'], ['flexible', '📅 Планово', 'blue']].map(([val, label, color]) => (
                   <button key={val} type="button"
                     className={`urgency-btn ${form.urgency === val ? 'active active-' + color : ''}`}
                     onClick={() => setForm(f => ({ ...f, urgency: val }))}>
@@ -85,36 +99,50 @@ export default function JobRequestPage() {
             </div>
 
             <div className="form-group">
-              <label>Service Address</label>
-              <input className="form-control" placeholder="e.g. 123 Maple Street, London"
+              <label>📅 Дата и время визита</label>
+              <input
+                className="form-control"
+                type="datetime-local"
+                value={form.scheduled_at}
+                onChange={set('scheduled_at')}
+                min={new Date().toISOString().slice(0, 16)}
+              />
+              <span style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 4, display: 'block' }}>
+                По умолчанию — ближайшее удобное время
+              </span>
+            </div>
+
+            <div className="form-group">
+              <label>Адрес</label>
+              <input className="form-control" placeholder="Например: ул. Рудаки 45, кв. 12, Душанбе"
                 value={form.address} onChange={set('address')} />
             </div>
 
             <div className="form-group">
-              <label>Offered Fee (£, optional)</label>
-              <input className="form-control" type="number" placeholder="Your budget"
+              <label>Предлагаемая оплата (сомони, необязательно)</label>
+              <input className="form-control" type="number" placeholder="Ваш бюджет"
                 value={form.offered_fee} onChange={set('offered_fee')} />
             </div>
 
             <button className="btn btn-primary btn-lg" type="submit" style={{ width: '100%' }} disabled={loading}>
-              {loading ? <span className="spinner" /> : 'Send Request ✈'}
+              {loading ? <span className="spinner" /> : 'Отправить заявку ✈'}
             </button>
           </form>
         </div>
 
         {tradesman && (
           <div className="card job-pricing-summary" style={{ alignSelf: 'start' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Pricing Summary</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Стоимость</h2>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
-              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Call-out Fee (Est.)</span>
-              <strong>£{tradesman.call_out_fee || 50}</strong>
+              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Выезд (ориент.)</span>
+              <strong>{tradesman.call_out_fee || 50} сом</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
-              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Hourly Rate</span>
-              <strong>£{tradesman.hourly_rate}/hr</strong>
+              <span style={{ color: 'var(--gray-500)', fontSize: 14 }}>Почасовая ставка</span>
+              <strong>{tradesman.hourly_rate} сом/ч</strong>
             </div>
             <p style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 12, lineHeight: 1.5 }}>
-              Final price will be determined after inspection. You will not be charged until the job is accepted and completed.
+              Окончательная цена определяется после осмотра. Оплата только после выполнения работы.
             </p>
           </div>
         )}

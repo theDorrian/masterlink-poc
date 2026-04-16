@@ -31,7 +31,7 @@ export default function TradesmanCard({ tradesman }) {
         </div>
       </div>
       <div className="t-card-right">
-        <div className="t-rate">£{hourly_rate}<span>/hr</span></div>
+        <div className="t-rate">{hourly_rate}<span> сом/ч</span></div>
         <div className="t-actions">
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/tradesman/${id}`)}>
             View Profile

@@ -7,7 +7,7 @@ exports.create = (req, res, next) => {
       return res.status(403).json({ error: 'Only customers can create job requests' });
     }
 
-    const { tradesman_id, title, description, address, city, urgency, offered_fee, photos } = req.body;
+    const { tradesman_id, title, description, address, city, urgency, offered_fee, scheduled_at, photos } = req.body;
     if (!tradesman_id || !title) {
       return res.status(400).json({ error: 'tradesman_id and title are required' });
     }
@@ -18,8 +18,8 @@ exports.create = (req, res, next) => {
     }
 
     const result = db.prepare(`
-      INSERT INTO job_requests (customer_id, tradesman_id, title, description, address, city, urgency, offered_fee, photos_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO job_requests (customer_id, tradesman_id, title, description, address, city, urgency, offered_fee, scheduled_at, photos_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       userId,
       tradesman_id,
@@ -29,6 +29,7 @@ exports.create = (req, res, next) => {
       city || null,
       urgency || 'flexible',
       offered_fee ? parseFloat(offered_fee) : null,
+      scheduled_at || null,
       JSON.stringify(photos || [])
     );
 
