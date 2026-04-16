@@ -31,34 +31,34 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card card">
         <div className="auth-logo">Master<span>L</span>ink</div>
-        <h1 className="auth-title">Добро пожаловать</h1>
-        <p className="auth-sub">Войдите в свой аккаунт</p>
+        <h1 className="auth-title">Welcome back</h1>
+        <p className="auth-sub">Sign in to your account</p>
 
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
-            <input className="form-control" type="email" placeholder="Введите email"
+            <input className="form-control" type="email" placeholder="Enter your email"
               value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className="form-group">
-            <label>Пароль</label>
-            <input className="form-control" type="password" placeholder="Введите пароль"
+            <label>Password</label>
+            <input className="form-control" type="password" placeholder="Enter your password"
               value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-lg auth-btn" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Войти'}
+            {loading ? <span className="spinner" /> : 'Log In'}
           </button>
         </form>
 
-        <div className="auth-divider"><span>или</span></div>
-        <p className="auth-switch">Нет аккаунта?{' '}
-          <Link to="/register">Зарегистрироваться</Link>
+        <div className="auth-divider"><span>or</span></div>
+        <p className="auth-switch">No account?{' '}
+          <Link to="/register">Sign Up</Link>
         </p>
 
         <p className="auth-demo">
-          Демо: <code>sarvinoz@example.com</code> / <code>password123</code>
+          Demo: <code>sarvinoz@example.com</code> / <code>password123</code>
         </p>
       </div>
     </div>

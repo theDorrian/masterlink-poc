@@ -3,7 +3,7 @@ import { tradesmensApi } from '../api/client';
 import TradesmanCard from '../components/TradesmanCard';
 import './SearchPage.css';
 
-const TRADES = ['Все', 'Сантехник', 'Электрик', 'Плотник', 'Маляр', 'Строитель', 'Плиточник'];
+const TRADES = ['All', 'Plumber', 'Electrician', 'Carpenter', 'Painter', 'Builder', 'Tiler'];
 
 export default function SearchPage() {
   const [tradesmen, setTradesmen] = useState([]);
@@ -24,9 +24,9 @@ export default function SearchPage() {
       const res = await tradesmensApi.list(params);
       let data = res.data.tradesmen || [];
       if (sortKey === 'rating_desc') data = [...data].sort((a, b) => b.avg_rating - a.avg_rating);
-      if (sortKey === 'rate_asc') data = [...data].sort((a, b) => a.hourly_rate - b.hourly_rate);
-      if (sortKey === 'rate_desc') data = [...data].sort((a, b) => b.hourly_rate - a.hourly_rate);
-      if (sortKey === 'available') data = [...data].sort((a, b) => b.is_available - a.is_available);
+      if (sortKey === 'rate_asc')    data = [...data].sort((a, b) => a.hourly_rate - b.hourly_rate);
+      if (sortKey === 'rate_desc')   data = [...data].sort((a, b) => b.hourly_rate - a.hourly_rate);
+      if (sortKey === 'available')   data = [...data].sort((a, b) => b.is_available - a.is_available);
       setTradesmen(data);
     } finally {
       setLoading(false);
@@ -57,17 +57,17 @@ export default function SearchPage() {
             </div>
 
             <div className="filter-section">
-              <label>Город</label>
-              <input className="form-control" placeholder="Душанбе или Хуҷанд" value={filters.city} onChange={set('city')} />
+              <label>City</label>
+              <input className="form-control" placeholder="Dushanbe or Khujand" value={filters.city} onChange={set('city')} />
             </div>
 
             <div className="filter-section">
-              <label>Специальность</label>
+              <label>Trade</label>
               <div className="trade-filter-grid">
                 {TRADES.map(t => (
                   <button key={t} type="button"
-                    className={`trade-filter-btn ${(filters.trade === t || (t === 'Все' && !filters.trade)) ? 'active' : ''}`}
-                    onClick={() => setFilters(f => ({ ...f, trade: t === 'Все' ? '' : t }))}>
+                    className={`trade-filter-btn ${(filters.trade === t || (t === 'All' && !filters.trade)) ? 'active' : ''}`}
+                    onClick={() => setFilters(f => ({ ...f, trade: t === 'All' ? '' : t }))}>
                     {t}
                   </button>
                 ))}
@@ -75,16 +75,16 @@ export default function SearchPage() {
             </div>
 
             <div className="filter-section">
-              <label>Ставка (сомони/ч)</label>
+              <label>Rate (somoni/hr)</label>
               <div className="rate-row">
-                <input className="form-control" type="number" placeholder="От" value={filters.min_rate} onChange={set('min_rate')} />
+                <input className="form-control" type="number" placeholder="Min" value={filters.min_rate} onChange={set('min_rate')} />
                 <span>–</span>
-                <input className="form-control" type="number" placeholder="До" value={filters.max_rate} onChange={set('max_rate')} />
+                <input className="form-control" type="number" placeholder="Max" value={filters.max_rate} onChange={set('max_rate')} />
               </div>
             </div>
 
             <div className="filter-section">
-              <label>Мин. рейтинг</label>
+              <label>Min. Rating</label>
               {[['⭐⭐⭐⭐⭐ 5.0', '5'], ['⭐⭐⭐⭐ 4.0+', '4'], ['⭐⭐⭐ 3.0+', '3']].map(([label, val]) => (
                 <label key={val} className="radio-label">
                   <input type="radio" name="rating" value={val}
@@ -99,12 +99,12 @@ export default function SearchPage() {
               <label className="checkbox-label">
                 <input type="checkbox" checked={!!filters.available}
                   onChange={e => setFilters(f => ({ ...f, available: e.target.checked ? '1' : '' }))} />
-                Только доступные сейчас
+                Available now only
               </label>
             </div>
 
             <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 8 }}>
-              Применить
+              Apply
             </button>
           </form>
         </aside>
@@ -113,13 +113,13 @@ export default function SearchPage() {
         <main className="search-results">
           <div className="results-header">
             <span className="results-count">
-              {loading ? 'Загрузка...' : `Найдено мастеров: ${tradesmen.length}`}
+              {loading ? 'Loading...' : `Found ${tradesmen.length} tradesman${tradesmen.length !== 1 ? 's' : ''}`}
             </span>
             <select className="form-control sort-select" value={sortKey} onChange={e => setSortKey(e.target.value)}>
-              <option value="rating_desc">По рейтингу</option>
-              <option value="rate_asc">По цене (дешевле)</option>
-              <option value="rate_desc">По цене (дороже)</option>
-              <option value="available">Сначала доступные</option>
+              <option value="rating_desc">By Rating</option>
+              <option value="rate_asc">By Price (low first)</option>
+              <option value="rate_desc">By Price (high first)</option>
+              <option value="available">Available first</option>
             </select>
           </div>
 

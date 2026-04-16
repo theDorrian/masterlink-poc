@@ -24,13 +24,13 @@ export default function TradesmanDetailPage() {
   useEffect(() => { fetchData(); }, [id]);
 
   if (loading) return <div className="page-wrap" style={{ textAlign: 'center', paddingTop: 80 }}><span className="spinner spinner-dark" style={{ width: 36, height: 36 }} /></div>;
-  if (!tradesman) return <div className="page-wrap">Мастер не найден.</div>;
+  if (!tradesman) return <div className="page-wrap">Tradesman not found.</div>;
 
   const { name, trade, city, hourly_rate, call_out_fee, avg_rating, review_count, is_available, years_experience, bio } = tradesman;
 
   return (
     <div className="page-wrap">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Назад</button>
+      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
       <div className="detail-layout">
         <div className="detail-main">
@@ -40,21 +40,21 @@ export default function TradesmanDetailPage() {
               <div className="detail-name-row">
                 <h1>{name}</h1>
                 <span className={`badge ${is_available ? 'badge-green' : 'badge-gray'}`}>
-                  {is_available ? '● Доступен' : '● Недоступен'}
+                  {is_available ? '● Available' : '● Unavailable'}
                 </span>
               </div>
               <div className="detail-trade">{trade}</div>
               <div className="detail-stats">
-                {avg_rating > 0 && <span>★ {avg_rating.toFixed(1)} ({review_count} отзывов)</span>}
+                {avg_rating > 0 && <span>★ {avg_rating.toFixed(1)} ({review_count} reviews)</span>}
                 <span>📍 {city}</span>
-                <span>🏆 Стаж: {years_experience || 1} лет</span>
+                <span>🏆 {years_experience || 1} yrs exp</span>
               </div>
             </div>
           </div>
 
           {bio && (
             <div className="card" style={{ marginTop: 16 }}>
-              <h2 className="section-h2">О мастере</h2>
+              <h2 className="section-h2">About</h2>
               <p style={{ color: 'var(--gray-700)', lineHeight: 1.7 }}>{bio}</p>
             </div>
           )}
@@ -64,21 +64,21 @@ export default function TradesmanDetailPage() {
 
         <aside className="detail-sidebar">
           <div className="card pricing-card">
-            <h2 className="section-h2">Стоимость</h2>
+            <h2 className="section-h2">Pricing</h2>
             <div className="price-item">
-              <span>Почасовая ставка</span>
-              <strong>{hourly_rate} сом/ч</strong>
+              <span>Hourly Rate</span>
+              <strong>{hourly_rate} som/hr</strong>
             </div>
             <div className="price-item">
-              <span>Выезд на объект</span>
-              <strong>{call_out_fee || 50} сом</strong>
+              <span>Call-out Fee</span>
+              <strong>{call_out_fee || 50} som</strong>
             </div>
-            <p className="price-note">Окончательная цена определяется после осмотра. Оплата после выполнения.</p>
+            <p className="price-note">Final price agreed after inspection. Payment after completion.</p>
 
             {role === 'customer' && (
               <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 20 }}
                 onClick={() => navigate(`/job-request/${id}`, { state: { tradesman } })}>
-                Заказать услугу
+                Book Service
               </button>
             )}
           </div>
@@ -88,12 +88,12 @@ export default function TradesmanDetailPage() {
   );
 }
 
-function ReviewsSection({ reviews, tradesmanId, role, onReviewAdded }) {
+function ReviewsSection({ reviews }) {
   return (
     <div className="card" style={{ marginTop: 16 }}>
-      <h2 className="section-h2">Отзывы {reviews.length > 0 && `(${reviews.length})`}</h2>
+      <h2 className="section-h2">Reviews {reviews.length > 0 && `(${reviews.length})`}</h2>
       {reviews.length === 0 ? (
-        <p style={{ color: 'var(--gray-400)', fontSize: 14 }}>Отзывов пока нет</p>
+        <p style={{ color: 'var(--gray-400)', fontSize: 14 }}>No reviews yet</p>
       ) : (
         <div className="reviews-list">
           {reviews.map((r, i) => (
@@ -104,7 +104,7 @@ function ReviewsSection({ reviews, tradesmanId, role, onReviewAdded }) {
               </div>
               {r.comment && <p className="review-comment">{r.comment}</p>}
               <p style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 4 }}>
-                {new Date(r.created_at).toLocaleDateString('ru-RU')}
+                {new Date(r.created_at).toLocaleDateString('en-GB')}
               </p>
             </div>
           ))}

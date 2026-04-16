@@ -6,12 +6,12 @@ import { useAuth } from '../context/AuthContext';
 import './MyJobsPage.css';
 
 const STATUS_BADGE = {
-  pending: 'badge-yellow',
-  accepted: 'badge-green',
-  declined: 'badge-red',
+  pending:   'badge-yellow',
+  accepted:  'badge-green',
+  declined:  'badge-red',
   completed: 'badge-blue',
 };
-const STATUS_RU = { pending: 'Ожидает', accepted: 'Принята', declined: 'Отклонена', completed: 'Завершена' };
+const STATUS_EN = { pending: 'Pending', accepted: 'Accepted', declined: 'Declined', completed: 'Completed' };
 
 export default function MyJobsPage() {
   const { role } = useAuth();
@@ -20,7 +20,7 @@ export default function MyJobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(location.state?.success);
-  const [reviewModal, setReviewModal] = useState(null); // job объект
+  const [reviewModal, setReviewModal] = useState(null);
 
   const fetchJobs = async () => {
     try {
@@ -38,16 +38,16 @@ export default function MyJobsPage() {
       await jobsApi.updateStatus(jobId, status);
       fetchJobs();
     } catch (err) {
-      alert(err.response?.data?.error || 'Ошибка');
+      alert(err.response?.data?.error || 'Error updating status');
     }
   };
 
   return (
     <div className="page-wrap">
-      <h1 className="page-title">{role === 'tradesman' ? 'Входящие заявки' : 'Мои заявки'}</h1>
+      <h1 className="page-title">{role === 'tradesman' ? 'Incoming Requests' : 'My Jobs'}</h1>
 
       {success && (
-        <div className="success-msg">✅ Заявка успешно отправлена!</div>
+        <div className="success-msg">✅ Request submitted successfully!</div>
       )}
 
       {loading ? (
@@ -57,8 +57,11 @@ export default function MyJobsPage() {
       ) : jobs.length === 0 ? (
         <div className="empty-jobs">
           <div style={{ fontSize: 48 }}>📋</div>
-          <h3>{role === 'tradesman' ? 'Заявок пока нет' : 'У вас нет заявок'}</h3>
-          <p>{role === 'customer' ? <button className="btn btn-primary" onClick={() => navigate('/search')}>Найти мастера</button> : 'Заявки от клиентов появятся здесь'}</p>
+          <h3>{role === 'tradesman' ? 'No requests yet' : 'No jobs yet'}</h3>
+          <p>{role === 'customer'
+            ? <button className="btn btn-primary" onClick={() => navigate('/search')}>Find a tradesman</button>
+            : 'Client requests will appear here'}
+          </p>
         </div>
       ) : (
         <div className="jobs-list">
@@ -70,46 +73,46 @@ export default function MyJobsPage() {
                   <div className="job-meta">
                     {role === 'customer'
                       ? <span>{job.tradesman_name} · {job.trade}</span>
-                      : <span>Клиент: {job.customer_name}</span>}
+                      : <span>Customer: {job.customer_name}</span>}
                     <span>·</span>
-                    <span>{new Date(job.created_at).toLocaleDateString('ru-RU')}</span>
+                    <span>{new Date(job.created_at).toLocaleDateString('en-GB')}</span>
                     {job.city && <><span>·</span><span>📍 {job.city}</span></>}
                   </div>
                 </div>
                 <div className="job-badges">
                   <span className={`badge badge-${job.urgency === 'emergency' ? 'red' : 'blue'}`}>
-                    {job.urgency === 'emergency' ? '⚡ Срочно' : '📅 Планово'}
+                    {job.urgency === 'emergency' ? '⚡ Emergency' : '📅 Scheduled'}
                   </span>
                   <span className={`badge ${STATUS_BADGE[job.status] || 'badge-gray'}`}>
-                    {STATUS_RU[job.status] || job.status}
+                    {STATUS_EN[job.status] || job.status}
                   </span>
                 </div>
               </div>
 
               {job.scheduled_at && (
                 <div className="job-schedule">
-                  🗓 Запланировано: <strong>{new Date(job.scheduled_at).toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
+                  🗓 Scheduled: <strong>{new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
                 </div>
               )}
               {job.description && <p className="job-desc">{job.description}</p>}
               {job.address && <p className="job-address">📍 {job.address}</p>}
-              {job.offered_fee && <p className="job-fee">Бюджет: <strong>{job.offered_fee} сом</strong></p>}
+              {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} som</strong></p>}
 
               <div className="job-actions">
                 {role === 'tradesman' && job.status === 'pending' && (
                   <>
-                    <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'accepted')}>Принять</button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleStatus(job.id, 'declined')}>Отклонить</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'accepted')}>Accept</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleStatus(job.id, 'declined')}>Decline</button>
                   </>
                 )}
                 {role === 'customer' && job.status === 'accepted' && (
                   <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'completed')}>
-                    Отметить выполненной
+                    Mark as Complete
                   </button>
                 )}
                 {role === 'customer' && job.status === 'completed' && (
                   <button className="btn btn-secondary btn-sm" onClick={() => setReviewModal(job)}>
-                    ⭐ Оставить отзыв
+                    ⭐ Leave a Review
                   </button>
                 )}
               </div>
@@ -138,7 +141,7 @@ function ReviewModal({ job, onClose }) {
       await client.post('/api/reviews', { job_id: job.id, rating, comment });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка при отправке отзыва');
+      setError(err.response?.data?.error || 'Failed to submit review');
       setLoading(false);
     }
   };
@@ -146,7 +149,7 @@ function ReviewModal({ job, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card card" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Оставить отзыв</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Leave a Review</h2>
         <p style={{ fontSize: 14, color: 'var(--gray-500)', marginBottom: 20 }}>
           {job.tradesman_name} · {job.trade}
         </p>
@@ -155,7 +158,7 @@ function ReviewModal({ job, onClose }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Оценка</label>
+            <label>Rating</label>
             <div className="star-picker">
               {[1, 2, 3, 4, 5].map(s => (
                 <button key={s} type="button"
@@ -165,17 +168,17 @@ function ReviewModal({ job, onClose }) {
             </div>
           </div>
           <div className="form-group">
-            <label>Комментарий (необязательно)</label>
+            <label>Comment (optional)</label>
             <textarea className="form-control" rows={3}
-              placeholder="Поделитесь впечатлениями о работе мастера..."
+              placeholder="Share your experience with this tradesman..."
               value={comment} onChange={e => setComment(e.target.value)} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button className="btn btn-primary" type="submit" disabled={loading} style={{ flex: 1 }}>
-              {loading ? <span className="spinner" /> : 'Отправить'}
+              {loading ? <span className="spinner" /> : 'Submit'}
             </button>
             <button className="btn btn-secondary" type="button" onClick={onClose} style={{ flex: 1 }}>
-              Отмена
+              Cancel
             </button>
           </div>
         </form>

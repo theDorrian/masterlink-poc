@@ -6,38 +6,38 @@ export default function LandingPage() {
     <div className="landing">
       <div className="landing-hero">
         <div className="landing-content">
-          <div className="landing-badge">Более 500 мастеров по Таджикистану</div>
+          <div className="landing-badge">500+ tradesmen across Tajikistan</div>
           <h1 className="landing-title">
-            Найдите надёжного<br />
-            <span>мастера</span> быстро
+            Find a trusted<br />
+            <span>tradesman</span> fast
           </h1>
           <p className="landing-subtitle">
-            Сантехники, электрики, плотники и маляры в Душанбе и Хуҷанде.
-            Быстро, надёжно, с отзывами.
+            Plumbers, electricians, carpenters and painters in Dushanbe &amp; Khujand.
+            Fast, reliable, and reviewed.
           </p>
           <div className="landing-btns">
             <Link to="/register?role=customer" className="btn btn-primary btn-lg">
-              Я ищу мастера →
+              I need a tradesman →
             </Link>
             <Link to="/register?role=tradesman" className="btn btn-secondary btn-lg">
-              Я мастер
+              I'm a tradesman
             </Link>
           </div>
           <p className="landing-login">
-            Уже есть аккаунт?{' '}
-            <Link to="/login" style={{ color: 'var(--orange)', fontWeight: 700 }}>Войти</Link>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: 'var(--orange)', fontWeight: 700 }}>Log In</Link>
           </p>
         </div>
       </div>
 
       <div className="landing-features page-wrap">
-        <h2 className="section-title">Как это работает</h2>
+        <h2 className="section-title">How it works</h2>
         <div className="features-grid">
           {[
-            { icon: '🔍', title: 'Поиск', desc: 'Найдите мастера по специальности, городу и доступности' },
-            { icon: '⭐', title: 'Сравнение', desc: 'Смотрите рейтинги, отзывы и почасовые ставки' },
-            { icon: '📋', title: 'Заявка', desc: 'Отправьте заявку с описанием, адресом и удобным временем' },
-            { icon: '✅', title: 'Готово', desc: 'Мастер принимает заказ и выполняет работу' },
+            { icon: '🔍', title: 'Search',  desc: 'Find a tradesman by trade, city and availability' },
+            { icon: '⭐', title: 'Compare', desc: 'Browse ratings, reviews and hourly rates' },
+            { icon: '📋', title: 'Book',    desc: 'Send a request with details, address and preferred time' },
+            { icon: '✅', title: 'Done',    desc: 'Tradesman accepts and gets the job done' },
           ].map(f => (
             <div key={f.title} className="feature-card card">
               <div className="feature-icon">{f.icon}</div>
@@ -49,9 +49,9 @@ export default function LandingPage() {
       </div>
 
       <div className="landing-trades page-wrap">
-        <h2 className="section-title">Специальности</h2>
+        <h2 className="section-title">Specialties</h2>
         <div className="trades-grid">
-          {['🔧 Сантехник', '⚡ Электрик', '🪚 Плотник', '🖌️ Маляр', '🧱 Строитель', '🪣 Плиточник'].map(t => (
+          {['🔧 Plumber', '⚡ Electrician', '🪚 Carpenter', '🖌️ Painter', '🧱 Builder', '🪣 Tiler'].map(t => (
             <Link key={t} to="/search" className="trade-chip">{t}</Link>
           ))}
         </div>

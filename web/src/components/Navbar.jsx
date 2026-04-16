@@ -20,19 +20,19 @@ export default function Navbar() {
 
         {user ? (
           <div className="navbar-right">
-            <Link to="/search" className="navbar-link">Поиск</Link>
+            <Link to="/search" className="navbar-link">Search</Link>
             <Link to="/my-jobs" className="navbar-link">
-              {role === 'tradesman' ? 'Заявки' : 'Мои заказы'}
+              {role === 'tradesman' ? 'Requests' : 'My Jobs'}
             </Link>
-            <Link to="/profile" className="navbar-link">Профиль</Link>
+            <Link to="/profile" className="navbar-link">Profile</Link>
             <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
-              Выйти
+              Log Out
             </button>
           </div>
         ) : (
           <div className="navbar-right">
-            <Link to="/login" className="btn btn-secondary btn-sm">Войти</Link>
-            <Link to="/register" className="btn btn-primary btn-sm">Регистрация</Link>
+            <Link to="/login" className="btn btn-secondary btn-sm">Log In</Link>
+            <Link to="/register" className="btn btn-primary btn-sm">Sign Up</Link>
           </div>
         )}
       </div>
