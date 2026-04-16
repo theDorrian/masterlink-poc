@@ -30,7 +30,12 @@ export const authApi = {
   updateProfile:    (data)   => client.put('/api/auth/profile', data),
   changePassword:   (data)   => client.put('/api/auth/password', data),
   topUp:            (amount) => client.post('/api/auth/topup', { amount }),
+  withdraw:         (amount) => client.post('/api/auth/withdraw', { amount }),
   setPaymentMethod: (method) => client.put('/api/auth/payment-method', { payment_method: method }),
+};
+
+export const reviewsApi = {
+  mine: () => client.get('/api/reviews/mine'),
 };
 
 export const tradesmensApi = {
