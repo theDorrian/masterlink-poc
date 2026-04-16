@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/client';
 import './AuthPages.css';
 
-const TRADES = ['Plumber', 'Electrician', 'Carpenter', 'Painter', 'Builder', 'Tiler', 'Decorator'];
+const TRADES = ['Сантехник', 'Электрик', 'Плотник', 'Маляр', 'Строитель', 'Плиточник', 'Отделочник'];
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -42,7 +42,7 @@ export default function RegisterPage() {
     <div className="auth-page">
       <div className="auth-card card">
         <div className="auth-logo">Master<span>L</span>ink</div>
-        <h1 className="auth-title">Create account</h1>
+        <h1 className="auth-title">Создать аккаунт</h1>
 
         <div className="role-toggle">
           <button type="button"
@@ -85,8 +85,8 @@ export default function RegisterPage() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Hourly Rate (£)</label>
-                  <input className="form-control" type="number" placeholder="e.g. 75"
+                  <label>Почасовая ставка (сомони)</label>
+                  <input className="form-control" type="number" placeholder="Например: 120"
                     value={form.hourly_rate} onChange={set('hourly_rate')} required />
                 </div>
                 <div className="form-group">
@@ -99,13 +99,13 @@ export default function RegisterPage() {
           )}
 
           <button className="btn btn-primary btn-lg auth-btn" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Create Account'}
+            {loading ? <span className="spinner" /> : 'Создать аккаунт'}
           </button>
         </form>
 
-        <div className="auth-divider"><span>or</span></div>
-        <p className="auth-switch">Already have an account?{' '}
-          <Link to="/login">Log in</Link>
+        <div className="auth-divider"><span>или</span></div>
+        <p className="auth-switch">Уже есть аккаунт?{' '}
+          <Link to="/login">Войти</Link>
         </p>
       </div>
     </div>

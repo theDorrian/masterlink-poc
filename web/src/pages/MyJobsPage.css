@@ -11,3 +11,18 @@
 .empty-jobs { text-align: center; padding: 80px 0; }
 .empty-jobs h3 { font-size: 18px; font-weight: 700; margin: 12px 0 6px; }
 .empty-jobs p { font-size: 14px; color: var(--gray-500); }
+.job-schedule { font-size: 13px; color: var(--gray-500); margin-bottom: 8px; }
+.success-msg { background: var(--green-light); color: var(--green-dark); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-weight: 600; }
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 24px;
+}
+.modal-card { width: 100%; max-width: 440px; }
+
+.star-picker { display: flex; gap: 6px; margin-bottom: 4px; }
+.star-btn { font-size: 28px; background: none; color: var(--gray-200); transition: color 0.1s; padding: 0; line-height: 1; }
+.star-btn.active { color: var(--yellow); }
+.star-btn:hover { color: var(--yellow); }

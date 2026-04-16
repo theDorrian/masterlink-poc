@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS job_requests (
   city TEXT,
   urgency TEXT DEFAULT 'flexible' CHECK(urgency IN ('emergency', 'flexible')),
   offered_fee REAL,
+  scheduled_at DATETIME,
   status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'declined', 'completed')),
   photos_json TEXT DEFAULT '[]',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

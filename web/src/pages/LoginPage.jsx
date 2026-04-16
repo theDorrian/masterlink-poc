@@ -31,34 +31,34 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card card">
         <div className="auth-logo">Master<span>L</span>ink</div>
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-sub">Sign in to continue to your account</p>
+        <h1 className="auth-title">Добро пожаловать</h1>
+        <p className="auth-sub">Войдите в свой аккаунт</p>
 
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
-            <input className="form-control" type="email" placeholder="Enter your email"
+            <input className="form-control" type="email" placeholder="Введите email"
               value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input className="form-control" type="password" placeholder="Enter your password"
+            <label>Пароль</label>
+            <input className="form-control" type="password" placeholder="Введите пароль"
               value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           <button className="btn btn-primary btn-lg auth-btn" type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Log in'}
+            {loading ? <span className="spinner" /> : 'Войти'}
           </button>
         </form>
 
-        <div className="auth-divider"><span>or</span></div>
-        <p className="auth-switch">Don't have an account?{' '}
-          <Link to="/register">Sign up</Link>
+        <div className="auth-divider"><span>или</span></div>
+        <p className="auth-switch">Нет аккаунта?{' '}
+          <Link to="/register">Зарегистрироваться</Link>
         </p>
 
         <p className="auth-demo">
-          Demo: <code>alice@example.com</code> / <code>password123</code>
+          Демо: <code>sarvinoz@example.com</code> / <code>password123</code>
         </p>
       </div>
     </div>

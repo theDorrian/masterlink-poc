@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { jobsApi } from '../api/client';
+import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import './MyJobsPage.css';
 
@@ -10,13 +11,16 @@ const STATUS_BADGE = {
   declined: 'badge-red',
   completed: 'badge-blue',
 };
+const STATUS_RU = { pending: 'Ожидает', accepted: 'Принята', declined: 'Отклонена', completed: 'Завершена' };
 
 export default function MyJobsPage() {
   const { role } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(location.state?.success);
+  const [reviewModal, setReviewModal] = useState(null); // job объект
 
   const fetchJobs = async () => {
     try {
@@ -34,18 +38,16 @@ export default function MyJobsPage() {
       await jobsApi.updateStatus(jobId, status);
       fetchJobs();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error updating status');
+      alert(err.response?.data?.error || 'Ошибка');
     }
   };
 
   return (
     <div className="page-wrap">
-      <h1 className="page-title">{role === 'tradesman' ? 'Incoming Requests' : 'My Jobs'}</h1>
+      <h1 className="page-title">{role === 'tradesman' ? 'Входящие заявки' : 'Мои заявки'}</h1>
 
       {success && (
-        <div style={{ background: 'var(--green-light)', color: 'var(--green-dark)', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontWeight: 600 }}>
-          ✅ Job request sent successfully!
-        </div>
+        <div className="success-msg">✅ Заявка успешно отправлена!</div>
       )}
 
       {loading ? (
@@ -55,8 +57,8 @@ export default function MyJobsPage() {
       ) : jobs.length === 0 ? (
         <div className="empty-jobs">
           <div style={{ fontSize: 48 }}>📋</div>
-          <h3>{role === 'tradesman' ? 'No incoming requests yet' : 'No jobs yet'}</h3>
-          <p>{role === 'customer' ? 'Find a tradesman and send your first request' : 'Requests from customers will appear here'}</p>
+          <h3>{role === 'tradesman' ? 'Заявок пока нет' : 'У вас нет заявок'}</h3>
+          <p>{role === 'customer' ? <button className="btn btn-primary" onClick={() => navigate('/search')}>Найти мастера</button> : 'Заявки от клиентов появятся здесь'}</p>
         </div>
       ) : (
         <div className="jobs-list">
@@ -68,47 +70,116 @@ export default function MyJobsPage() {
                   <div className="job-meta">
                     {role === 'customer'
                       ? <span>{job.tradesman_name} · {job.trade}</span>
-                      : <span>From: {job.customer_name}</span>}
+                      : <span>Клиент: {job.customer_name}</span>}
                     <span>·</span>
-                    <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                    <span>{new Date(job.created_at).toLocaleDateString('ru-RU')}</span>
                     {job.city && <><span>·</span><span>📍 {job.city}</span></>}
                   </div>
                 </div>
                 <div className="job-badges">
                   <span className={`badge badge-${job.urgency === 'emergency' ? 'red' : 'blue'}`}>
-                    {job.urgency === 'emergency' ? '⚡ Emergency' : '📅 Flexible'}
+                    {job.urgency === 'emergency' ? '⚡ Срочно' : '📅 Планово'}
                   </span>
                   <span className={`badge ${STATUS_BADGE[job.status] || 'badge-gray'}`}>
-                    {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                    {STATUS_RU[job.status] || job.status}
                   </span>
                 </div>
               </div>
 
+              {job.scheduled_at && (
+                <div className="job-schedule">
+                  🗓 Запланировано: <strong>{new Date(job.scheduled_at).toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
+                </div>
+              )}
               {job.description && <p className="job-desc">{job.description}</p>}
               {job.address && <p className="job-address">📍 {job.address}</p>}
-              {job.offered_fee && <p className="job-fee">Budget: <strong>£{job.offered_fee}</strong></p>}
+              {job.offered_fee && <p className="job-fee">Бюджет: <strong>{job.offered_fee} сом</strong></p>}
 
-              {role === 'tradesman' && job.status === 'pending' && (
-                <div className="job-actions">
-                  <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'accepted')}>
-                    Accept
-                  </button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => handleStatus(job.id, 'declined')}>
-                    Decline
-                  </button>
-                </div>
-              )}
-              {role === 'customer' && job.status === 'accepted' && (
-                <div className="job-actions">
+              <div className="job-actions">
+                {role === 'tradesman' && job.status === 'pending' && (
+                  <>
+                    <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'accepted')}>Принять</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleStatus(job.id, 'declined')}>Отклонить</button>
+                  </>
+                )}
+                {role === 'customer' && job.status === 'accepted' && (
                   <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'completed')}>
-                    Mark as Completed
+                    Отметить выполненной
                   </button>
-                </div>
-              )}
+                )}
+                {role === 'customer' && job.status === 'completed' && (
+                  <button className="btn btn-secondary btn-sm" onClick={() => setReviewModal(job)}>
+                    ⭐ Оставить отзыв
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {reviewModal && (
+        <ReviewModal job={reviewModal} onClose={() => { setReviewModal(null); fetchJobs(); }} />
+      )}
+    </div>
+  );
+}
+
+function ReviewModal({ job, onClose }) {
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await client.post('/api/reviews', { job_id: job.id, rating, comment });
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Ошибка при отправке отзыва');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card card" onClick={e => e.stopPropagation()}>
+        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Оставить отзыв</h2>
+        <p style={{ fontSize: 14, color: 'var(--gray-500)', marginBottom: 20 }}>
+          {job.tradesman_name} · {job.trade}
+        </p>
+
+        {error && <div className="error-msg">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Оценка</label>
+            <div className="star-picker">
+              {[1, 2, 3, 4, 5].map(s => (
+                <button key={s} type="button"
+                  className={`star-btn ${s <= rating ? 'active' : ''}`}
+                  onClick={() => setRating(s)}>★</button>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Комментарий (необязательно)</label>
+            <textarea className="form-control" rows={3}
+              placeholder="Поделитесь впечатлениями о работе мастера..."
+              value={comment} onChange={e => setComment(e.target.value)} />
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-primary" type="submit" disabled={loading} style={{ flex: 1 }}>
+              {loading ? <span className="spinner" /> : 'Отправить'}
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={onClose} style={{ flex: 1 }}>
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
