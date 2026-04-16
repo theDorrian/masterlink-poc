@@ -4,10 +4,12 @@ import TradesmanCard from '../components/TradesmanCard';
 import './SearchPage.css';
 
 const TRADES = ['All', 'Plumber', 'Electrician', 'Carpenter', 'Painter', 'Builder', 'Tiler'];
+const CITIES = ['All', 'Dushanbe', 'Khujand'];
 
 export default function SearchPage() {
   const [tradesmen, setTradesmen] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ trade: '', city: '', min_rate: '', max_rate: '', min_rating: '', available: '' });
   const [sortKey, setSortKey] = useState('rating_desc');
 
@@ -41,11 +43,27 @@ export default function SearchPage() {
   const handleReset = () => {
     const empty = { trade: '', city: '', min_rate: '', max_rate: '', min_rating: '', available: '' };
     setFilters(empty);
+    setSearch('');
     fetchTradesmen(empty);
   };
 
+  const visible = search.trim()
+    ? tradesmen.filter(t => t.name.toLowerCase().includes(search.trim().toLowerCase()))
+    : tradesmen;
+
   return (
     <div className="search-page page-wrap">
+
+      {/* Top search bar */}
+      <div className="search-topbar">
+        <input
+          className="form-control search-input"
+          placeholder="Search by tradesman name..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
       <div className="search-layout">
 
         {/* Sidebar Filters */}
@@ -58,11 +76,19 @@ export default function SearchPage() {
 
             <div className="filter-section">
               <label>City</label>
-              <input className="form-control" placeholder="Dushanbe or Khujand" value={filters.city} onChange={set('city')} />
+              <div className="trade-filter-grid">
+                {CITIES.map(c => (
+                  <button key={c} type="button"
+                    className={`trade-filter-btn ${(filters.city === c || (c === 'All' && !filters.city)) ? 'active' : ''}`}
+                    onClick={() => setFilters(f => ({ ...f, city: c === 'All' ? '' : c }))}>
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="filter-section">
-              <label>Trade</label>
+              <label>Jobs</label>
               <div className="trade-filter-grid">
                 {TRADES.map(t => (
                   <button key={t} type="button"
@@ -75,7 +101,7 @@ export default function SearchPage() {
             </div>
 
             <div className="filter-section">
-              <label>Rate (somoni/hr)</label>
+              <label>Rate (TJS/hr)</label>
               <div className="rate-row">
                 <input className="form-control" type="number" placeholder="Min" value={filters.min_rate} onChange={set('min_rate')} />
                 <span>–</span>
@@ -113,7 +139,7 @@ export default function SearchPage() {
         <main className="search-results">
           <div className="results-header">
             <span className="results-count">
-              {loading ? 'Loading...' : `Found ${tradesmen.length} tradesman${tradesmen.length !== 1 ? 's' : ''}`}
+              {loading ? 'Loading...' : `Found ${visible.length} tradesman${visible.length !== 1 ? 's' : ''}`}
             </span>
             <select className="form-control sort-select" value={sortKey} onChange={e => setSortKey(e.target.value)}>
               <option value="rating_desc">By Rating</option>
@@ -127,7 +153,7 @@ export default function SearchPage() {
             <div className="loading-state">
               <span className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
             </div>
-          ) : tradesmen.length === 0 ? (
+          ) : visible.length === 0 ? (
             <div className="empty-state">
               <div style={{ fontSize: 48 }}>🔍</div>
               <h3>No tradesmen found</h3>
@@ -135,7 +161,7 @@ export default function SearchPage() {
             </div>
           ) : (
             <div className="results-list">
-              {tradesmen.map(t => <TradesmanCard key={t.id} tradesman={t} />)}
+              {visible.map(t => <TradesmanCard key={t.id} tradesman={t} />)}
             </div>
           )}
         </main>

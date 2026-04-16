@@ -85,7 +85,7 @@ export default function RegisterPage() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Hourly rate (somoni)</label>
+                  <label>Hourly rate (TJS)</label>
                   <input className="form-control" type="number" placeholder="e.g. 120"
                     value={form.hourly_rate} onChange={set('hourly_rate')} required />
                 </div>
