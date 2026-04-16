@@ -8,6 +8,7 @@ router.get('/me',               verifyToken, ctrl.me);
 router.put('/profile',          verifyToken, ctrl.updateProfile);
 router.put('/password',         verifyToken, ctrl.changePassword);
 router.post('/topup',           verifyToken, ctrl.topUp);
+router.post('/withdraw',        verifyToken, ctrl.withdraw);
 router.put('/payment-method',   verifyToken, ctrl.setPaymentMethod);
 
 module.exports = router;

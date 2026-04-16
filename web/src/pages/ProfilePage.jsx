@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { authApi, jobsApi } from '../api/client';
+import { authApi, jobsApi, reviewsApi } from '../api/client';
 import './ProfilePage.css';
 
 const PAYMENT_TYPES = ['Visa', 'Mastercard', 'PayMe', 'Click', 'Bank Transfer', 'Cash'];
@@ -14,12 +14,17 @@ export default function ProfilePage() {
   const [completedJobs, setCompletedJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [jobsOpen, setJobsOpen] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsOpen, setReviewsOpen] = useState(false);
 
   useEffect(() => {
     authApi.me().then(res => setProfile(res.data.profile));
     jobsApi.mine()
       .then(res => setCompletedJobs((res.data.jobs || []).filter(j => j.status === 'completed')))
       .finally(() => setLoadingJobs(false));
+    if (role === 'tradesman') {
+      reviewsApi.mine().then(res => setReviews(res.data.reviews || []));
+    }
   }, []);
 
   if (!user) return null;
@@ -158,7 +163,12 @@ export default function ProfilePage() {
                         🗓 {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
                       </div>
                     )}
-                    {job.offered_fee && <div className="completed-fee">💰 {job.offered_fee} TJS</div>}
+                    {job.final_fee
+                      ? <div className="completed-fee">💸 Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
+                      : job.offered_fee
+                        ? <div className="completed-fee">💰 Budget: {job.offered_fee} TJS</div>
+                        : null
+                    }
                     {role === 'customer' && job.tradesman_id && (
                       <button className="btn btn-secondary btn-sm" style={{ marginTop: 10 }}
                         onClick={() => navigate(`/tradesman/${job.tradesman_id}`)}>
@@ -172,6 +182,47 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+      {/* ── Reviews (tradesman only) ── */}
+      {role === 'tradesman' && (
+        <div className="card accordion-card">
+          <button className="accordion-toggle" onClick={() => setReviewsOpen(o => !o)}>
+            <span className="accordion-title">
+              My Reviews
+              {reviews.length > 0 && <span className="accordion-count">{reviews.length}</span>}
+            </span>
+            <span className={`accordion-chevron ${reviewsOpen ? 'open' : ''}`}>▾</span>
+          </button>
+          {reviewsOpen && (
+            <div className="accordion-body">
+              {reviews.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--gray-400)', fontSize: 14 }}>
+                  No reviews yet
+                </div>
+              ) : (
+                <div className="completed-list">
+                  {reviews.map(r => (
+                    <div key={r.id} className="completed-job">
+                      <div className="completed-header">
+                        <div>
+                          <div className="job-title-small">{r.job_title}</div>
+                          <div className="job-meta-small">by {r.reviewer_name}</div>
+                        </div>
+                        <div className="review-stars">
+                          {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                        </div>
+                      </div>
+                      {r.comment && <p style={{ fontSize: 14, color: 'var(--gray-600)', margin: '6px 0 0', lineHeight: 1.5 }}>{r.comment}</p>}
+                      <div className="completed-date" style={{ marginTop: 6 }}>
+                        {new Date(r.created_at).toLocaleDateString('en-GB', { dateStyle: 'medium' })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -286,19 +337,33 @@ function EditProfileSection({ user, role, profile, onSaved }) {
 // ── Balance ───────────────────────────────────────────────────────────────────
 
 function BalanceSection({ user, onUpdated }) {
-  const [amount, setAmount] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg]   = useState('');
-  const [error, setError] = useState('');
+  const [topUpAmount, setTopUpAmount]       = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [msg, setMsg]           = useState('');
+  const [error, setError]       = useState('');
 
   const handleTopUp = async e => {
     e.preventDefault();
     setLoading(true); setMsg(''); setError('');
     try {
-      await authApi.topUp(parseFloat(amount));
+      await authApi.topUp(parseFloat(topUpAmount));
       await onUpdated();
-      setMsg(`${amount} TJS added to your balance!`);
-      setAmount('');
+      setMsg(`${topUpAmount} TJS added to your balance!`);
+      setTopUpAmount('');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Something went wrong');
+    } finally { setLoading(false); }
+  };
+
+  const handleWithdraw = async e => {
+    e.preventDefault();
+    setLoading(true); setMsg(''); setError('');
+    try {
+      await authApi.withdraw(parseFloat(withdrawAmount));
+      await onUpdated();
+      setMsg(`${withdrawAmount} TJS withdrawn successfully!`);
+      setWithdrawAmount('');
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
     } finally { setLoading(false); }
@@ -320,9 +385,16 @@ function BalanceSection({ user, onUpdated }) {
       {error && <div className="error-msg"   style={{ marginTop: 12 }}>{error}</div>}
       <form onSubmit={handleTopUp} style={{ display: 'flex', gap: 10, maxWidth: 340, marginTop: 14 }}>
         <input className="form-control" type="number" min="1" placeholder="Amount in TJS"
-          value={amount} onChange={e => setAmount(e.target.value)} required />
+          value={topUpAmount} onChange={e => setTopUpAmount(e.target.value)} required />
         <button className="btn btn-primary" type="submit" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
-          {loading ? <span className="spinner" /> : 'Add Funds'}
+          {loading ? <span className="spinner" /> : '+ Add Funds'}
+        </button>
+      </form>
+      <form onSubmit={handleWithdraw} style={{ display: 'flex', gap: 10, maxWidth: 340, marginTop: 10 }}>
+        <input className="form-control" type="number" min="1" placeholder="Amount in TJS"
+          value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} required />
+        <button className="btn btn-secondary" type="submit" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
+          {loading ? <span className="spinner spinner-dark" /> : '− Withdraw'}
         </button>
       </form>
     </div>

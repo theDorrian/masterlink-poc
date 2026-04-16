@@ -171,6 +171,29 @@ exports.topUp = (req, res, next) => {
   }
 };
 
+exports.withdraw = (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const amount = parseFloat(req.body.amount);
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be a positive number' });
+    }
+
+    const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+    if (user.balance < amount) {
+      return res.status(400).json({ error: `Insufficient balance — available: ${Math.floor(user.balance)} TJS` });
+    }
+
+    db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(amount, userId);
+    const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+
+    res.json({ user: safeUser(updated) });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.setPaymentMethod = (req, res, next) => {
   try {
     const { userId } = req.user;
