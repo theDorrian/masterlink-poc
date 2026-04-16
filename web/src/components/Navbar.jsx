@@ -15,7 +15,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to={user ? '/search' : '/'} className="navbar-logo">
-          Master<span>L</span>ink
+          Master<span>Link</span>
         </Link>
 
         {user ? (
