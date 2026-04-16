@@ -41,5 +41,5 @@ export const tradesmensApi = {
 export const jobsApi = {
   create:       (data)         => client.post('/api/jobs', data),
   mine:         ()             => client.get('/api/jobs/mine'),
-  updateStatus: (id, status)   => client.patch(`/api/jobs/${id}/status`, { status }),
+  updateStatus: (id, status, extra = {}) => client.patch(`/api/jobs/${id}/status`, { status, ...extra }),
 };

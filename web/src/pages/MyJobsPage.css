@@ -26,3 +26,19 @@
 .star-btn { font-size: 28px; background: none; color: var(--gray-200); transition: color 0.1s; padding: 0; line-height: 1; }
 .star-btn.active { color: var(--yellow); }
 .star-btn:hover { color: var(--yellow); }
+
+.job-payment-summary {
+  font-size: 14px; color: var(--gray-700);
+  background: var(--orange-light); color: var(--orange);
+  border-radius: 8px; padding: 10px 14px;
+  margin-top: 10px;
+}
+.job-payment-summary strong { font-weight: 800; }
+
+.payment-preview {
+  background: var(--orange-light); color: var(--orange);
+  border-radius: 8px; padding: 12px 16px;
+  font-size: 14px; font-weight: 600;
+  margin-top: 4px;
+}
+.payment-preview strong { font-weight: 800; }
