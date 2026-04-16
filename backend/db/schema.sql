@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL CHECK(role IN ('customer', 'tradesman')),
   avatar_url TEXT,
+  balance REAL NOT NULL DEFAULT 0,
+  frozen_balance REAL NOT NULL DEFAULT 0,
+  payment_method TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -35,8 +38,10 @@ CREATE TABLE IF NOT EXISTS job_requests (
   city TEXT,
   urgency TEXT DEFAULT 'flexible' CHECK(urgency IN ('emergency', 'flexible')),
   offered_fee REAL,
+  hours_worked REAL,
+  final_fee REAL,
   scheduled_at DATETIME,
-  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'declined', 'completed')),
+  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'declined', 'done', 'completed')),
   photos_json TEXT DEFAULT '[]',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES users(id),
