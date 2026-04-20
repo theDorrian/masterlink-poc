@@ -26,7 +26,7 @@ export default function TradesmanDetailPage() {
   if (loading) return <div className="page-wrap" style={{ textAlign: 'center', paddingTop: 80 }}><span className="spinner spinner-dark" style={{ width: 36, height: 36 }} /></div>;
   if (!tradesman) return <div className="page-wrap">Tradesman not found.</div>;
 
-  const { name, trade, city, hourly_rate, call_out_fee, avg_rating, review_count, is_available, years_experience, bio } = tradesman;
+  const { name, trade, city, hourly_rate, call_out_fee, avg_rating, review_count, is_available, years_experience, bio, avatar_url } = tradesman;
 
   return (
     <div className="page-wrap">
@@ -35,7 +35,9 @@ export default function TradesmanDetailPage() {
       <div className="detail-layout">
         <div className="detail-main">
           <div className="card detail-header">
-            <div className="detail-avatar">{name?.[0]}</div>
+            <div className="detail-avatar">
+              <img src={avatar_url || '/default-avatar.svg'} alt={name} className="detail-avatar-img" />
+            </div>
             <div className="detail-info">
               <div className="detail-name-row">
                 <h1>{name}</h1>

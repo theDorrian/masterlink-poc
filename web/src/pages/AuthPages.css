@@ -71,3 +71,20 @@
 .trade-pill.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Registration avatar picker ─────────────────────────────────────────── */
+.reg-avatar-wrap { display: flex; align-items: center; gap: 16px; }
+.reg-avatar {
+  width: 72px; height: 72px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid var(--gray-200);
+  transition: border-color 0.15s;
+}
+.reg-avatar:hover { border-color: var(--primary); }
+.reg-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reg-avatar-hint { font-size: 13px; color: var(--gray-500); }
+.reg-avatar-set  { color: var(--primary); font-weight: 600; }
