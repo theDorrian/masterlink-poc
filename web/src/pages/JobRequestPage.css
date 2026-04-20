@@ -12,7 +12,7 @@
 .req-avatar {
   width: 44px; height: 44px;
   border-radius: 10px;
-  background: var(--orange);
+  background: var(--primary);
   color: #fff;
   font-size: 18px;
   font-weight: 900;

@@ -59,7 +59,7 @@ export default function TradesmanDetailPage() {
             </div>
           )}
 
-          <ReviewsSection reviews={reviews} tradesmanId={id} role={role} onReviewAdded={fetchData} />
+          <ReviewsSection reviews={reviews} />
         </div>
 
         <aside className="detail-sidebar">

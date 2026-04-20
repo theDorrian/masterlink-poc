@@ -1,4 +1,5 @@
 const db = require('../db/database');
+const { isNonNegInt } = require('../middleware/validate');
 
 exports.create = (req, res, next) => {
   try {
@@ -8,8 +9,15 @@ exports.create = (req, res, next) => {
     if (!job_id || !rating) {
       return res.status(400).json({ error: 'job_id and rating are required' });
     }
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'rating must be between 1 and 5' });
+    if (!isNonNegInt(job_id) || parseInt(job_id, 10) < 1) {
+      return res.status(400).json({ error: 'job_id must be a positive integer' });
+    }
+    const ratingInt = parseInt(rating, 10);
+    if (!Number.isInteger(ratingInt) || ratingInt < 1 || ratingInt > 5) {
+      return res.status(400).json({ error: 'rating must be an integer between 1 and 5' });
+    }
+    if (comment !== undefined && comment !== null && String(comment).length > 1000) {
+      return res.status(400).json({ error: 'comment must be 1 000 characters or fewer' });
     }
 
     const job = db.prepare('SELECT * FROM job_requests WHERE id = ?').get(job_id);
@@ -25,7 +33,7 @@ exports.create = (req, res, next) => {
       VALUES (?, ?, ?, ?, ?)
     `).run(job_id, userId, job.tradesman_id, parseInt(rating), comment || null);
 
-    // Пересчитываем рейтинг мастера
+    // update the average rating for this tradesman
     const stats = db.prepare(`
       SELECT AVG(rating) as avg, COUNT(*) as cnt FROM reviews WHERE reviewee_id = ?
     `).get(job.tradesman_id);

@@ -10,7 +10,7 @@
 }
 .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .sidebar-header h2 { font-size: 16px; font-weight: 700; }
-.reset-btn { background: none; font-size: 13px; font-weight: 600; color: var(--orange); padding: 0; }
+.reset-btn { background: none; font-size: 13px; font-weight: 600; color: var(--primary); padding: 0; }
 
 .filter-section { margin-bottom: 20px; }
 .filter-section > label { display: block; font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -26,16 +26,16 @@
   background: #fff;
   transition: all 0.15s;
 }
-.trade-filter-btn.active { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+.trade-filter-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 .rate-row { display: flex; align-items: center; gap: 8px; }
 .rate-row span { color: var(--gray-400); }
 .rate-row .form-control { padding: 9px 10px; }
 
 .radio-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-700); margin-bottom: 8px; cursor: pointer; }
-.radio-label input { accent-color: var(--orange); }
+.radio-label input { accent-color: var(--primary); }
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--gray-700); cursor: pointer; font-weight: 600; }
-.checkbox-label input { accent-color: var(--orange); width: 15px; height: 15px; }
+.checkbox-label input { accent-color: var(--primary); width: 15px; height: 15px; }
 
 .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .results-count { font-size: 14px; font-weight: 600; color: var(--gray-500); }

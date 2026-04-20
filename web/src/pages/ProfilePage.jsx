@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { authApi, jobsApi, reviewsApi } from '../api/client';
@@ -31,10 +31,12 @@ export default function ProfilePage() {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
-  const parsed = (() => {
-    try { return user.payment_method ? JSON.parse(user.payment_method) : null; }
-    catch { return null; }
-  })();
+  let parsed = null;
+  try {
+    if (user.payment_method) parsed = JSON.parse(user.payment_method);
+  } catch (e) {
+    parsed = null;
+  }
 
   return (
     <div className="page-wrap profile-wrap">
@@ -42,7 +44,11 @@ export default function ProfilePage() {
       {/* ── Profile card ── */}
       <div className="card profile-card">
         <div className="profile-avatar-wrap">
-          <div className="profile-avatar">{user.name?.[0]}</div>
+          <div className="profile-avatar">
+            {user.avatar_url
+              ? <img src={user.avatar_url} alt={user.name} className="avatar-img" />
+              : user.name?.[0]}
+          </div>
           <div>
             <div className="profile-name">{user.name}</div>
             <div className="profile-email">{user.email}</div>
@@ -68,7 +74,7 @@ export default function ProfilePage() {
 
           <div className="profile-row">
             <span>Balance</span>
-            <strong style={{ color: 'var(--orange)' }}>{(user.balance || 0).toFixed(0)} TJS</strong>
+            <strong style={{ color: 'var(--primary)' }}>{(user.balance || 0).toFixed(0)} TJS</strong>
           </div>
 
           {(user.frozen_balance || 0) > 0 && (
@@ -254,12 +260,28 @@ function EditProfileSection({ user, role, profile, onSaved }) {
     call_out_fee:     profile?.call_out_fee || '',
     years_experience: profile?.years_experience || '',
     is_available:     profile?.is_available ?? 1,
+    avatar_url:       user.avatar_url || '',
   });
+  const [avatarPreview, setAvatarPreview] = useState(user.avatar_url || '');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg]   = useState('');
   const [error, setError] = useState('');
+  const fileRef = useRef(null);
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const handleAvatarFile = e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setError('Please select an image file'); return; }
+    if (file.size > 2 * 1024 * 1024) { setError('Image must be under 2 MB'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      setAvatarPreview(ev.target.result);
+      setForm(f => ({ ...f, avatar_url: ev.target.result }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -277,6 +299,28 @@ function EditProfileSection({ user, role, profile, onSaved }) {
     <form onSubmit={handleSubmit}>
       {msg   && <div className="success-msg">{msg}</div>}
       {error && <div className="error-msg">{error}</div>}
+
+      {/* Avatar upload */}
+      <div className="form-group">
+        <label>Profile Picture</label>
+        <div className="avatar-upload-wrap">
+          <div className="avatar-upload-preview" onClick={() => fileRef.current?.click()}>
+            {avatarPreview
+              ? <img src={avatarPreview} alt="avatar" className="avatar-img" />
+              : <span className="avatar-upload-initial">{user.name?.[0]}</span>}
+            <span className="avatar-upload-overlay">Change</span>
+          </div>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp"
+            style={{ display: 'none' }} onChange={handleAvatarFile} />
+          {avatarPreview && (
+            <button type="button" className="btn btn-secondary btn-sm"
+              onClick={() => { setAvatarPreview(''); setForm(f => ({ ...f, avatar_url: '' })); }}>
+              Remove
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="form-group">
         <label>Full Name</label>
         <input className="form-control" value={form.name} onChange={set('name')} required />
@@ -404,10 +448,12 @@ function BalanceSection({ user, onUpdated }) {
 // ── Payment Method ────────────────────────────────────────────────────────────
 
 function PaymentSection({ user, onUpdated }) {
-  const parsed = (() => {
-    try { return user.payment_method ? JSON.parse(user.payment_method) : null; }
-    catch { return null; }
-  })();
+  let parsed = null;
+  try {
+    if (user.payment_method) parsed = JSON.parse(user.payment_method);
+  } catch (e) {
+    parsed = null;
+  }
 
   const [type, setType]       = useState(parsed?.type || '');
   const [identifier, setId]   = useState(parsed?.identifier || '');
@@ -491,7 +537,7 @@ function PasswordSection() {
       </div>
       <div className="form-group">
         <label>New Password</label>
-        <input className="form-control" type="password" placeholder="Min 6 characters" value={form.new_password} onChange={set('new_password')} required />
+        <input className="form-control" type="password" placeholder="Min 8 characters" value={form.new_password} onChange={set('new_password')} required />
       </div>
       <div className="form-group">
         <label>Confirm New Password</label>

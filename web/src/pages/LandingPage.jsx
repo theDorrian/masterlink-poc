@@ -16,16 +16,16 @@ export default function LandingPage() {
             Fast, reliable, and reviewed.
           </p>
           <div className="landing-btns">
-            <Link to="/register?role=customer" className="btn btn-primary btn-lg">
+            <Link to="/register" className="btn btn-primary btn-lg">
               I need a tradesman →
             </Link>
-            <Link to="/register?role=tradesman" className="btn btn-secondary btn-lg">
+            <Link to="/register" className="btn btn-secondary btn-lg">
               I'm a tradesman
             </Link>
           </div>
           <p className="landing-login">
             Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--orange)', fontWeight: 700 }}>Log In</Link>
+            <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 700 }}>Log In</Link>
           </p>
         </div>
       </div>
