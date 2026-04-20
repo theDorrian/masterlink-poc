@@ -25,7 +25,7 @@ function safeUser(user) {
 
 exports.register = (req, res, next) => {
   try {
-    const { name, email, password, role, trade, hourly_rate, city } = req.body;
+    const { name, email, password, role, trade, hourly_rate, city, avatar_url } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ error: 'name, email, password and role are required' });
@@ -50,6 +50,20 @@ exports.register = (req, res, next) => {
       if (!isPositiveNum(hourly_rate) || parseFloat(hourly_rate) > 99_999) {
         return res.status(400).json({ error: 'hourly_rate must be a positive number up to 99 999' });
       }
+      if (!avatar_url) {
+        return res.status(400).json({ error: 'Profile photo is required for tradesmen' });
+      }
+    }
+
+    if (avatar_url) {
+      const isDataUrl = DATA_URL_RE.test(avatar_url);
+      const isHttpUrl = HTTP_URL_RE.test(avatar_url);
+      if (!isDataUrl && !isHttpUrl) {
+        return res.status(400).json({ error: 'avatar_url must be an http(s) URL or a base64 image data URL' });
+      }
+      if (isDataUrl && avatar_url.length > 3_000_000) {
+        return res.status(400).json({ error: 'Encoded avatar must be under 3 MB' });
+      }
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
@@ -60,8 +74,8 @@ exports.register = (req, res, next) => {
 
     const password_hash = bcrypt.hashSync(password, 10);
     const result = db.prepare(
-      'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)'
-    ).run(trimmedName, normalizedEmail, password_hash, role);
+      'INSERT INTO users (name, email, password_hash, role, avatar_url) VALUES (?, ?, ?, ?, ?)'
+    ).run(trimmedName, normalizedEmail, password_hash, role, avatar_url || null);
 
     const userId = result.lastInsertRowid;
 
@@ -131,7 +145,7 @@ exports.updateProfile = (req, res, next) => {
         return res.status(400).json({ error: 'avatar_url must be an http(s) URL or a base64 image data URL' });
       }
       if (isDataUrl && avatar_url.length > 3_000_000) {
-        return res.status(400).json({ error: 'Avatar image must be under 2 MB' });
+        return res.status(400).json({ error: 'Encoded avatar must be under 3 MB — use the in-app uploader which resizes automatically' });
       }
       db.prepare('UPDATE users SET avatar_url = ? WHERE id = ?').run(avatar_url, userId);
     } else if (avatar_url === '') {
@@ -146,7 +160,10 @@ exports.updateProfile = (req, res, next) => {
       db.prepare('UPDATE users SET name = ? WHERE id = ?').run(trimmedName, userId);
     }
 
-    if (role === 'tradesman') {
+    const hasTradesmanFields = [bio, city, trade, hourly_rate, call_out_fee, is_available, years_experience]
+      .some(v => v !== undefined);
+
+    if (role === 'tradesman' && hasTradesmanFields) {
       if (hourly_rate !== undefined && (!isPositiveNum(hourly_rate) || parseFloat(hourly_rate) > 99_999)) {
         return res.status(400).json({ error: 'hourly_rate must be a positive number up to 99 999' });
       }
@@ -162,16 +179,21 @@ exports.updateProfile = (req, res, next) => {
       if (bio !== undefined && String(bio).length > 1000) {
         return res.status(400).json({ error: 'bio must be 1 000 characters or fewer' });
       }
+
+      // Load current values so partial updates don't wipe required fields
+      const current = db.prepare('SELECT * FROM tradesman_profiles WHERE user_id = ?').get(userId);
       db.prepare(`
         UPDATE tradesman_profiles
         SET bio = ?, city = ?, trade = ?, hourly_rate = ?, call_out_fee = ?, is_available = ?, years_experience = ?
         WHERE user_id = ?
       `).run(
-        bio || null, city, trade,
-        parseFloat(hourly_rate) || 0,
-        parseFloat(call_out_fee) || 0,
-        is_available ? 1 : 0,
-        parseInt(years_experience) || 1,
+        bio          !== undefined ? (bio || null)              : current.bio,
+        city         !== undefined ? city                       : current.city,
+        trade        !== undefined ? trade                      : current.trade,
+        hourly_rate  !== undefined ? parseFloat(hourly_rate)   : current.hourly_rate,
+        call_out_fee !== undefined ? parseFloat(call_out_fee)  : current.call_out_fee,
+        is_available !== undefined ? (is_available ? 1 : 0)    : current.is_available,
+        years_experience !== undefined ? parseInt(years_experience) || 1 : current.years_experience,
         userId
       );
     }

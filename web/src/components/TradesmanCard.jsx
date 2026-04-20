@@ -5,13 +5,13 @@ import './TradesmanCard.css';
 export default function TradesmanCard({ tradesman }) {
   const navigate = useNavigate();
   const { role } = useAuth();
-  const { id, name, trade, city, hourly_rate, avg_rating, review_count, is_available } = tradesman;
+  const { id, name, trade, city, hourly_rate, avg_rating, review_count, is_available, avatar_url } = tradesman;
 
   return (
     <div className="t-card">
       <div className="t-card-left">
         <div className="t-avatar">
-          {name?.[0]}
+          <img src={avatar_url || '/default-avatar.svg'} alt={name} className="t-avatar-img" />
           <span className={`t-dot ${is_available ? 'online' : 'offline'}`} />
         </div>
         <div className="t-info">
