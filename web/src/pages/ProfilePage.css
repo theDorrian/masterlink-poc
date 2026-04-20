@@ -7,11 +7,7 @@
 .profile-avatar {
   position: relative;
   width: 72px; height: 72px;
-  border-radius: 18px;
-  background: var(--primary);
-  color: #fff;
-  font-size: 28px; font-weight: 900;
-  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px;
   flex-shrink: 0;
   overflow: hidden;
   cursor: pointer;
@@ -75,7 +71,7 @@
 .balance-pill {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: 2px;
   font-size: 14px;
 }
 .balance-pill.available { background: var(--primary-light); color: var(--primary); }
@@ -97,7 +93,7 @@
 .accordion-count {
   background: var(--primary); color: #fff;
   font-size: 12px; font-weight: 700;
-  padding: 2px 8px; border-radius: 20px;
+  padding: 2px 8px; border-radius: 2px;
 }
 .accordion-chevron {
   font-size: 20px; color: var(--gray-400);
@@ -113,8 +109,8 @@
 .completed-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
 .job-title-small  { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
 .job-meta-small   { font-size: 13px; color: var(--gray-500); }
-.completed-date   { font-size: 13px; color: var(--gray-500); margin-bottom: 4px; }
-.completed-fee    { font-size: 14px; font-weight: 600; color: var(--gray-700); }
+.completed-date   { font-size: 13px; color: var(--gray-500); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+.completed-fee    { font-size: 14px; font-weight: 600; color: var(--gray-700); display: flex; align-items: center; gap: 5px; }
 
 .tradesman-link {
   color: var(--primary); font-weight: 600; cursor: pointer;
@@ -124,9 +120,21 @@
 
 /* ── Review stars ────────────────────────────────────────────────────────────── */
 .review-stars {
-  font-size: 16px;
-  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
   color: var(--yellow);
   flex-shrink: 0;
 }
+
+@media (max-width: 540px) {
+  .profile-avatar-wrap { flex-wrap: wrap; }
+  .completed-header { flex-direction: column; gap: 6px; }
+  .settings-row { padding: 14px 16px; }
+  .settings-heading { padding: 16px 16px 12px; }
+  .settings-body { padding: 4px 16px 16px; }
+  .accordion-body { padding: 0 16px 16px; }
+  .accordion-toggle { padding: 16px; }
+}
+
 
