@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Search, Star } from 'lucide-react';
 import { tradesmensApi } from '../api/client';
 import TradesmanCard from '../components/TradesmanCard';
 import './SearchPage.css';
@@ -110,14 +111,35 @@ export default function SearchPage() {
 
             <div className="filter-section">
               <label>Min. Rating</label>
-              {[['⭐⭐⭐⭐⭐ 5.0', '5'], ['⭐⭐⭐⭐ 4.0+', '4'], ['⭐⭐⭐ 3.0+', '3']].map(([label, val]) => (
-                <label key={val} className="radio-label">
-                  <input type="radio" name="rating" value={val}
-                    checked={filters.min_rating === val}
-                    onChange={() => setFilters(f => ({ ...f, min_rating: val }))} />
-                  {label}
-                </label>
-              ))}
+              <div className="rating-filter-group">
+                {[
+                  { val: '5', stars: 5, label: '5.0'  },
+                  { val: '4', stars: 4, label: '4.0+' },
+                  { val: '3', stars: 3, label: '3.0+' },
+                ].map(({ val, stars, label }) => {
+                  const active = filters.min_rating === val;
+                  return (
+                    <button
+                      key={val}
+                      type="button"
+                      className={`rating-chip ${active ? 'rating-chip-active' : ''}`}
+                      onClick={() => setFilters(f => ({ ...f, min_rating: active ? '' : val }))}
+                    >
+                      <span className="rating-chip-stars">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <Star
+                            key={i}
+                            size={13}
+                            fill={i < stars ? 'currentColor' : 'none'}
+                            strokeWidth={1.5}
+                          />
+                        ))}
+                      </span>
+                      <span className="rating-chip-label">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="filter-section">
@@ -154,7 +176,7 @@ export default function SearchPage() {
             </div>
           ) : visible.length === 0 ? (
             <div className="empty-state">
-              <div style={{ fontSize: 48 }}>🔍</div>
+              <Search size={48} className="empty-state-icon" />
               <h3>No tradesmen found</h3>
               <p>Try adjusting your filters</p>
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { MapPin, Zap, Calendar, Clock, CheckCircle2, Star, ClipboardList } from 'lucide-react';
 import { jobsApi } from '../api/client';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -55,7 +56,9 @@ export default function MyJobsPage() {
       <h1 className="page-title">{role === 'tradesman' ? 'Incoming Requests' : 'My Jobs'}</h1>
 
       {success && (
-        <div className="success-msg">✅ Request submitted successfully!</div>
+        <div className="success-msg" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <CheckCircle2 size={16} /> Request submitted successfully!
+        </div>
       )}
 
       {loading ? (
@@ -64,7 +67,7 @@ export default function MyJobsPage() {
         </div>
       ) : jobs.length === 0 ? (
         <div className="empty-jobs">
-          <div style={{ fontSize: 48 }}>📋</div>
+          <ClipboardList size={48} className="empty-jobs-icon" />
           <h3>{role === 'tradesman' ? 'No requests yet' : 'No jobs yet'}</h3>
           <p>{role === 'customer'
             ? <button className="btn btn-primary" onClick={() => navigate('/search')}>Find a tradesman</button>
@@ -84,12 +87,15 @@ export default function MyJobsPage() {
                       : <span>Customer: {job.customer_name}</span>}
                     <span>·</span>
                     <span>{new Date(job.created_at).toLocaleDateString('en-GB')}</span>
-                    {job.city && <><span>·</span><span>📍 {job.city}</span></>}
+                    {job.city && <><span>·</span><span className="job-meta-loc"><MapPin size={11} />{job.city}</span></>}
                   </div>
                 </div>
                 <div className="job-badges">
                   <span className={`badge badge-${job.urgency === 'emergency' ? 'red' : 'blue'}`}>
-                    {job.urgency === 'emergency' ? '⚡ Emergency' : '📅 Scheduled'}
+                    {job.urgency === 'emergency'
+                      ? <><Zap size={11} /> Emergency</>
+                      : <><Calendar size={11} /> Scheduled</>
+                    }
                   </span>
                   <span className={`badge ${STATUS_BADGE[job.status] || 'badge-gray'}`}>
                     {STATUS_EN[job.status] || job.status}
@@ -99,16 +105,16 @@ export default function MyJobsPage() {
 
               {job.scheduled_at && (
                 <div className="job-schedule">
-                  🗓 Scheduled: <strong>{new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
+                  <Calendar size={13} /> Scheduled: <strong>{new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
                 </div>
               )}
               {job.description && <p className="job-desc">{job.description}</p>}
-              {job.address && <p className="job-address">📍 {job.address}</p>}
+              {job.address && <p className="job-address"><MapPin size={13} />{job.address}</p>}
               {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} TJS</strong></p>}
 
               {job.status === 'done' && job.final_fee > 0 && (
                 <div className="job-payment-summary">
-                  🕐 {job.hours_worked} hrs × {job.hourly_rate} TJS/hr = <strong>{job.final_fee} TJS</strong>
+                  <Clock size={13} /> {job.hours_worked} hrs × {job.hourly_rate} TJS/hr = <strong>{job.final_fee} TJS</strong>
                 </div>
               )}
 
@@ -125,13 +131,13 @@ export default function MyJobsPage() {
                   </button>
                 )}
                 {role === 'customer' && job.status === 'done' && (
-                  <button className="btn btn-primary btn-sm" onClick={() => handleStatus(job.id, 'completed')}>
-                    ✅ Confirm &amp; Pay {job.final_fee ? `${job.final_fee} TJS` : ''}
+                  <button className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => handleStatus(job.id, 'completed')}>
+                    <CheckCircle2 size={14} /> Confirm &amp; Pay {job.final_fee ? `${job.final_fee} TJS` : ''}
                   </button>
                 )}
                 {role === 'customer' && job.status === 'completed' && (
-                  <button className="btn btn-secondary btn-sm" onClick={() => setReviewModal(job)}>
-                    ⭐ Leave a Review
+                  <button className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => setReviewModal(job)}>
+                    <Star size={14} /> Leave a Review
                   </button>
                 )}
               </div>
@@ -219,8 +225,8 @@ function MarkDoneModal({ job, onClose, onDone }) {
           </div>
 
           {total !== null && (
-            <div className="payment-preview" style={{ marginTop: 12 }}>
-              🕐 {h}h {m}m × {rate} TJS/hr = <strong>{total} TJS</strong>
+            <div className="payment-preview" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Clock size={14} /> {h}h {m}m × {rate} TJS/hr = <strong>{total} TJS</strong>
               <div style={{ fontSize: 13, color: 'var(--gray-600)', marginTop: 4 }}>
                 This amount will be frozen from the customer's balance.
               </div>
@@ -276,7 +282,9 @@ function ReviewModal({ job, onClose }) {
               {[1, 2, 3, 4, 5].map(s => (
                 <button key={s} type="button"
                   className={`star-btn ${s <= rating ? 'active' : ''}`}
-                  onClick={() => setRating(s)}>★</button>
+                  onClick={() => setRating(s)}>
+                  <Star size={22} fill={s <= rating ? 'currentColor' : 'none'} strokeWidth={1.5} />
+                </button>
               ))}
             </div>
           </div>
