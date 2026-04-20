@@ -12,17 +12,18 @@ export default function SearchPage() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ trade: '', city: '', min_rate: '', max_rate: '', min_rating: '', available: '' });
   const [sortKey, setSortKey] = useState('rating_desc');
+  const [fetchCount, setFetchCount] = useState(0);
 
-  const fetchTradesmen = async (f = filters) => {
+  const fetchTradesmen = async () => {
     setLoading(true);
     try {
       const params = {};
-      if (f.trade) params.trade = f.trade;
-      if (f.city) params.city = f.city;
-      if (f.min_rate) params.min_rate = f.min_rate;
-      if (f.max_rate) params.max_rate = f.max_rate;
-      if (f.min_rating) params.min_rating = f.min_rating;
-      if (f.available) params.available = 'true';
+      if (filters.trade) params.trade = filters.trade;
+      if (filters.city) params.city = filters.city;
+      if (filters.min_rate) params.min_rate = filters.min_rate;
+      if (filters.max_rate) params.max_rate = filters.max_rate;
+      if (filters.min_rating) params.min_rating = filters.min_rating;
+      if (filters.available) params.available = 'true';
       const res = await tradesmensApi.list(params);
       let data = res.data.tradesmen || [];
       if (sortKey === 'rating_desc') data = [...data].sort((a, b) => b.avg_rating - a.avg_rating);
@@ -35,16 +36,15 @@ export default function SearchPage() {
     }
   };
 
-  useEffect(() => { fetchTradesmen(); }, [sortKey]);
+  useEffect(() => { fetchTradesmen(); }, [sortKey, fetchCount]);
 
   const set = (k) => (e) => setFilters(f => ({ ...f, [k]: e.target.value }));
 
-  const handleSearch = (e) => { e.preventDefault(); fetchTradesmen(); };
+  const handleSearch = (e) => { e.preventDefault(); setFetchCount(n => n + 1); };
   const handleReset = () => {
-    const empty = { trade: '', city: '', min_rate: '', max_rate: '', min_rating: '', available: '' };
-    setFilters(empty);
+    setFilters({ trade: '', city: '', min_rate: '', max_rate: '', min_rating: '', available: '' });
     setSearch('');
-    fetchTradesmen(empty);
+    setFetchCount(n => n + 1);
   };
 
   const visible = search.trim()

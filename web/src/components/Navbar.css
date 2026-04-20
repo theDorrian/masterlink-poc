@@ -20,7 +20,7 @@
   color: var(--gray-900);
   letter-spacing: -0.5px;
 }
-.navbar-logo span { color: var(--orange); }
+.navbar-logo span { color: var(--primary); }
 .navbar-right { display: flex; align-items: center; gap: 8px; }
 .navbar-link {
   padding: 6px 12px;

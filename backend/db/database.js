@@ -13,7 +13,7 @@ db.pragma('foreign_keys = ON');
 const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
 db.exec(schema);
 
-// ── Safe column migrations ───────────────────────────────────────────────────
+// add new columns if they don't exist yet (safe to run multiple times)
 const addCol = (table, col, def) => {
   const exists = db.pragma(`table_info(${table})`).some(c => c.name === col);
   if (!exists) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
@@ -23,7 +23,8 @@ addCol('users', 'balance',        'REAL NOT NULL DEFAULT 0');
 addCol('users', 'frozen_balance', 'REAL NOT NULL DEFAULT 0');
 addCol('users', 'payment_method', 'TEXT');
 
-// ── Migrate job_requests to add 'done' status + hours_worked + final_fee ─────
+// migrate job_requests: add 'done' status and payment columns
+// SQLite can't alter CHECK constraints so we have to recreate the table
 // SQLite can't ALTER CHECK constraints — must recreate the table when missing
 const jrSql = db.prepare(
   "SELECT sql FROM sqlite_master WHERE type='table' AND name='job_requests'"

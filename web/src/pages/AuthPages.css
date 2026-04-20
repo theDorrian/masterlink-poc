@@ -8,7 +8,7 @@
 }
 .auth-card { width: 100%; max-width: 460px; }
 .auth-logo { font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
-.auth-logo span { color: var(--orange); }
+.auth-logo span { color: var(--primary); }
 .auth-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
 .auth-sub { font-size: 14px; color: var(--gray-500); text-align: center; margin-bottom: 24px; }
 .auth-btn { width: 100%; margin-top: 8px; }
@@ -33,7 +33,7 @@
   position: relative;
 }
 .auth-switch { text-align: center; font-size: 14px; color: var(--gray-500); }
-.auth-switch a { color: var(--orange); font-weight: 700; }
+.auth-switch a { color: var(--primary); font-weight: 700; }
 .auth-demo { text-align: center; font-size: 12px; color: var(--gray-400); margin-top: 16px; }
 .auth-demo code { background: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
 
@@ -68,6 +68,6 @@
   background: #fff;
   transition: all 0.15s;
 }
-.trade-pill.active { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+.trade-pill.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

@@ -1,6 +1,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  --primary: #2E75B6;
+  --primary-dark: #1F3864;
+  --primary-light: #EBF3FB;
   --orange: #E8781A;
   --orange-light: #FFF3E8;
   --orange-dark: #c9621a;
@@ -45,8 +48,8 @@ input, textarea, select { font-family: inherit; outline: none; }
   cursor: pointer;
   border: none;
 }
-.btn-primary { background: var(--orange); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--orange-dark); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
 .btn-secondary { background: #fff; color: var(--gray-700); border: 1.5px solid var(--gray-200); }
 .btn-secondary:hover:not(:disabled) { background: var(--gray-50); }
 .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
@@ -86,7 +89,7 @@ input, textarea, select { font-family: inherit; outline: none; }
   background: #fff;
   transition: border-color 0.15s;
 }
-.form-control:focus { border-color: var(--orange); }
+.form-control:focus { border-color: var(--primary); }
 .form-control::placeholder { color: var(--gray-400); }
 textarea.form-control { resize: vertical; min-height: 100px; }
 
@@ -100,7 +103,7 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 }
 .spinner-dark {
   border-color: rgba(0,0,0,0.15);
-  border-top-color: var(--orange);
+  border-top-color: var(--primary);
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 

@@ -6,8 +6,21 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: (origin, cb) => {
+    // Allow same-origin / non-browser requests (e.g. curl, health checks) in development
+    if (!origin && process.env.NODE_ENV !== 'production') return cb(null, true);
+    if (origin && allowedOrigins.includes(origin)) return cb(null, true);
+    cb(Object.assign(new Error(`CORS: origin '${origin}' not allowed`), { status: 403 }));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' })); // Allow base64 photos
 
 // Health check
