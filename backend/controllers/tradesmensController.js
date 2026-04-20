@@ -1,4 +1,5 @@
 const db = require('../db/database');
+const { clampInt, isInRange, isPositiveNum } = require('../middleware/validate');
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -23,9 +24,26 @@ exports.list = (req, res, next) => {
       available,
       lat,
       lng,
-      limit = 20,
-      offset = 0,
     } = req.query;
+
+    const limit  = clampInt(req.query.limit,  1, 100, 20);
+    const offset = clampInt(req.query.offset, 0, 1_000_000, 0);
+
+    if (min_rate !== undefined && min_rate !== '' && !isPositiveNum(min_rate) && parseFloat(min_rate) !== 0) {
+      return res.status(400).json({ error: 'min_rate must be a non-negative number' });
+    }
+    if (max_rate !== undefined && max_rate !== '' && !isPositiveNum(max_rate) && parseFloat(max_rate) !== 0) {
+      return res.status(400).json({ error: 'max_rate must be a non-negative number' });
+    }
+    if (min_rating !== undefined && min_rating !== '' && !isInRange(min_rating, 1, 5)) {
+      return res.status(400).json({ error: 'min_rating must be between 1 and 5' });
+    }
+    if (lat !== undefined && lat !== '' && !isInRange(lat, -90, 90)) {
+      return res.status(400).json({ error: 'lat must be between -90 and 90' });
+    }
+    if (lng !== undefined && lng !== '' && !isInRange(lng, -180, 180)) {
+      return res.status(400).json({ error: 'lng must be between -180 and 180' });
+    }
 
     let sql = `
       SELECT u.id, u.name, u.avatar_url,
@@ -63,7 +81,7 @@ exports.list = (req, res, next) => {
     }
 
     sql += ' LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), parseInt(offset));
+    params.push(limit, offset);
 
     let rows = db.prepare(sql).all(...params);
 
@@ -88,7 +106,7 @@ exports.list = (req, res, next) => {
 
     res.json({ tradesmen: rows, total: rows.length });
   } catch (err) {
-    next(err);
+    res.status(500).json({ error: err.message });
   }
 };
 

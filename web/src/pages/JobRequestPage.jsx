@@ -4,9 +4,7 @@ import { jobsApi } from '../api/client';
 import './JobRequestPage.css';
 
 function defaultSchedule() {
-  const d = new Date();
-  d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30, 0, 0);
-  return d.toISOString().slice(0, 16);
+  return new Date().toISOString().slice(0, 16);
 }
 
 export default function JobRequestPage() {
@@ -63,7 +61,7 @@ export default function JobRequestPage() {
               <div className="req-avatar">{tradesman.name?.[0]}</div>
               <div>
                 <div style={{ fontWeight: 700 }}>{tradesman.name}</div>
-                <div style={{ fontSize: 13, color: 'var(--orange)', fontWeight: 600 }}>{tradesman.trade}</div>
+                <div style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 600 }}>{tradesman.trade}</div>
               </div>
             </div>
           )}
