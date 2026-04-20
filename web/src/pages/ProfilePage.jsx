@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { CreditCard, MapPin, Calendar, Banknote, Coins, Star } from 'lucide-react';
 import { authApi, jobsApi, reviewsApi } from '../api/client';
 import AvatarCropModal from '../components/AvatarCropModal';
 import './ProfilePage.css';
@@ -152,7 +153,7 @@ export default function ProfilePage() {
           {parsed && (
             <div className="profile-row">
               <span>Payment</span>
-              <strong>💳 {parsed.type}{parsed.identifier ? ` · ${parsed.identifier}` : ''}</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: 5 }}><CreditCard size={14} />{parsed.type}{parsed.identifier ? ` · ${parsed.identifier}` : ''}</strong>
             </div>
           )}
         </div>
@@ -224,20 +225,20 @@ export default function ProfilePage() {
                           ) : (
                             <>Customer: {job.customer_name}</>
                           )}
-                          {job.city && <> · 📍 {job.city}</>}
+                          {job.city && <> · <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><MapPin size={11} />{job.city}</span></>}
                         </div>
                       </div>
-                      <span className="badge badge-blue">✓ Completed</span>
+                      <span className="badge badge-blue">Completed</span>
                     </div>
                     {job.scheduled_at && (
                       <div className="completed-date">
-                        🗓 {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
+                        <Calendar size={12} /> {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
                       </div>
                     )}
                     {job.final_fee
-                      ? <div className="completed-fee">💸 Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
+                      ? <div className="completed-fee"><Banknote size={13} /> Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
                       : job.offered_fee
-                        ? <div className="completed-fee">💰 Budget: {job.offered_fee} TJS</div>
+                        ? <div className="completed-fee"><Coins size={13} /> Budget: {job.offered_fee} TJS</div>
                         : null
                     }
                     {role === 'customer' && job.tradesman_id && (
@@ -283,7 +284,9 @@ export default function ProfilePage() {
                           <div className="job-meta-small">by {r.reviewer_name}</div>
                         </div>
                         <div className="review-stars">
-                          {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star key={i} size={13} fill={i < r.rating ? 'currentColor' : 'none'} strokeWidth={1.5} />
+                          ))}
                         </div>
                       </div>
                       {r.comment && <p style={{ fontSize: 14, color: 'var(--gray-600)', margin: '6px 0 0', lineHeight: 1.5 }}>{r.comment}</p>}
