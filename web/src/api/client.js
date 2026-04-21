@@ -49,3 +49,9 @@ export const jobsApi = {
   mine:         ()             => client.get('/api/jobs/mine'),
   updateStatus: (id, status, extra = {}) => client.patch(`/api/jobs/${id}/status`, { status, ...extra }),
 };
+
+export const notificationsApi = {
+  getAll:      () => client.get('/api/notifications'),
+  markRead:    (id) => client.patch(`/api/notifications/${id}/read`),
+  markAllRead: () => client.patch('/api/notifications/read-all'),
+};

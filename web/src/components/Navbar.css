@@ -53,6 +53,43 @@
   flex-shrink: 0;
 }
 
+/* Bell icon */
+.navbar-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--gray-500);
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.navbar-bell:hover { color: var(--gray-900); }
+
+.navbar-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #e53e3e;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.dropdown-badge {
+  margin-left: auto;
+  background: #e53e3e;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
 /* ══════════════════════════════════════════════
    AVATAR BUTTON
    ══════════════════════════════════════════════ */
