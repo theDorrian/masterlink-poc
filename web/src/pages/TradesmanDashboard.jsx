@@ -254,9 +254,6 @@ export default function TradesmanDashboard() {
                         {job.urgency === 'emergency' && (
                           <span className="badge badge-red" style={{ fontSize: 11 }}><Zap size={10} /> Emergency</span>
                         )}
-                        {job.offered_fee && (
-                          <span className="sched-fee">{job.offered_fee} TJS budget</span>
-                        )}
                       </div>
                     </div>
                     <button
@@ -409,9 +406,6 @@ function RequestCard({ job, onUpdate }) {
         {job.city && <span><MapPin size={11} />{job.city}</span>}
         {job.scheduled_at && <span><Calendar size={11} />{fmtShort(job.scheduled_at)}</span>}
       </div>
-      {job.offered_fee && (
-        <div className="req-fee">Budget: <strong>{job.offered_fee} TJS</strong></div>
-      )}
       <div className="req-actions">
         <button
           className="btn btn-primary btn-sm"
