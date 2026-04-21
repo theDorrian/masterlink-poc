@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ClipboardList, User, LogOut, Menu, X } from 'lucide-react';
+import { ClipboardList, User, LogOut, Menu, X, Bell } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { notificationsApi } from '../api/client';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -9,30 +10,67 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
+  // Close dropdown when clicking outside
+  useEffect(function() {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return function() {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
-  const handleLogout = () => {
+  // Poll for unread notifications every 30 seconds
+  useEffect(function() {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    function fetchUnread() {
+      notificationsApi.getAll()
+        .then(function(res) {
+          setUnreadCount(res.data.unread_count || 0);
+        })
+        .catch(function() {
+          // silently ignore polling errors
+        });
+    }
+
+    fetchUnread();
+    var interval = setInterval(fetchUnread, 30000);
+    return function() {
+      clearInterval(interval);
+    };
+  }, [user]);
+
+  function handleLogout() {
     setOpen(false);
     setMenuOpen(false);
     logout();
     navigate('/');
-  };
+  }
 
-  const closeMobile = () => setMenuOpen(false);
+  function closeMobile() {
+    setMenuOpen(false);
+  }
 
-  const initials = user
-    ? user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-    : '';
+  // Build initials from user name
+  var initials = '';
+  if (user) {
+    var parts = user.name.split(' ');
+    for (var i = 0; i < parts.length && initials.length < 2; i++) {
+      if (parts[i].length > 0) {
+        initials += parts[i][0].toUpperCase();
+      }
+    }
+  }
 
   return (
     <nav className="navbar">
@@ -42,65 +80,80 @@ export default function Navbar() {
           Master<span>Link</span>
         </Link>
 
-        {/* Desktop right cluster */}
+        {/* Desktop navigation */}
         <div className="navbar-right">
           {role === 'tradesman' && (
-            <NavLink to="/dashboard" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
+            <NavLink to="/dashboard" className={function({ isActive }) { return 'navbar-link' + (isActive ? ' active' : ''); }}>
               Dashboard
             </NavLink>
           )}
-          <NavLink to="/search" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
+          <NavLink to="/search" className={function({ isActive }) { return 'navbar-link' + (isActive ? ' active' : ''); }}>
             Search
           </NavLink>
-          <NavLink to="/about" className={({ isActive }) => 'navbar-link' + (isActive ? ' active' : '')}>
+          <NavLink to="/about" className={function({ isActive }) { return 'navbar-link' + (isActive ? ' active' : ''); }}>
             About Us
           </NavLink>
 
           <div className="navbar-sep" />
 
           {user ? (
-            <div className="avatar-menu" ref={dropdownRef}>
-              <button
-                className="avatar-btn"
-                onClick={() => setOpen(o => !o)}
-                aria-label="Account menu"
-              >
-                {user.avatar_url
-                  ? <img src={user.avatar_url} alt={user.name} className="avatar-photo" />
-                  : <span className="avatar-initials">{initials}</span>
-                }
-                <span className="avatar-chevron">{open ? '▲' : '▼'}</span>
-              </button>
+            <>
+              {/* Notification bell */}
+              <Link to="/inbox" className="navbar-bell" title="Inbox">
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="navbar-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                )}
+              </Link>
 
-              {open && (
-                <div className="avatar-dropdown">
-                  <div className="dropdown-header">
-                    <div className="dropdown-avatar">
-                      {user.avatar_url
-                        ? <img src={user.avatar_url} alt={user.name} className="dropdown-avatar-img" />
-                        : <span>{initials}</span>
-                      }
+              <div className="avatar-menu" ref={dropdownRef}>
+                <button
+                  className="avatar-btn"
+                  onClick={function() { setOpen(function(prev) { return !prev; }); }}
+                  aria-label="Account menu"
+                >
+                  {user.avatar_url
+                    ? <img src={user.avatar_url} alt={user.name} className="avatar-photo" />
+                    : <span className="avatar-initials">{initials}</span>
+                  }
+                  <span className="avatar-chevron">{open ? '▲' : '▼'}</span>
+                </button>
+
+                {open && (
+                  <div className="avatar-dropdown">
+                    <div className="dropdown-header">
+                      <div className="dropdown-avatar">
+                        {user.avatar_url
+                          ? <img src={user.avatar_url} alt={user.name} className="dropdown-avatar-img" />
+                          : <span>{initials}</span>
+                        }
+                      </div>
+                      <div>
+                        <p className="dropdown-name">{user.name}</p>
+                        <p className="dropdown-role">{role === 'tradesman' ? 'Tradesman' : 'Client'}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="dropdown-name">{user.name}</p>
-                      <p className="dropdown-role">{role === 'tradesman' ? 'Tradesman' : 'Client'}</p>
-                    </div>
+                    <div className="dropdown-divider" />
+                    <Link to="/inbox" className="dropdown-item" onClick={function() { setOpen(false); }}>
+                      <Bell size={15} className="di-icon" />
+                      Inbox
+                      {unreadCount > 0 && <span className="dropdown-badge">{unreadCount}</span>}
+                    </Link>
+                    <Link to="/my-jobs" className="dropdown-item" onClick={function() { setOpen(false); }}>
+                      <ClipboardList size={15} className="di-icon" />
+                      {role === 'tradesman' ? 'Requests' : 'My Jobs'}
+                    </Link>
+                    <Link to="/profile" className="dropdown-item" onClick={function() { setOpen(false); }}>
+                      <User size={15} className="di-icon" />Profile
+                    </Link>
+                    <div className="dropdown-divider" />
+                    <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
+                      <LogOut size={15} className="di-icon" />Log Out
+                    </button>
                   </div>
-                  <div className="dropdown-divider" />
-                  <Link to="/my-jobs" className="dropdown-item" onClick={() => setOpen(false)}>
-                    <ClipboardList size={15} className="di-icon" />
-                    {role === 'tradesman' ? 'Requests' : 'My Jobs'}
-                  </Link>
-                  <Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>
-                    <User size={15} className="di-icon" />Profile
-                  </Link>
-                  <div className="dropdown-divider" />
-                  <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
-                    <LogOut size={15} className="di-icon" />Log Out
-                  </button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <Link to="/login" className="btn btn-secondary btn-sm">Log In</Link>
@@ -109,10 +162,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger button */}
         <button
           className="mobile-menu-btn"
-          onClick={() => setMenuOpen(o => !o)}
+          onClick={function() { setMenuOpen(function(prev) { return !prev; }); }}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -138,20 +191,23 @@ export default function Navbar() {
           )}
 
           {role === 'tradesman' && (
-            <NavLink to="/dashboard" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={closeMobile}>
+            <NavLink to="/dashboard" className={function({ isActive }) { return 'mobile-nav-link' + (isActive ? ' active' : ''); }} onClick={closeMobile}>
               Dashboard
             </NavLink>
           )}
-          <NavLink to="/search" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={closeMobile}>
+          <NavLink to="/search" className={function({ isActive }) { return 'mobile-nav-link' + (isActive ? ' active' : ''); }} onClick={closeMobile}>
             Search
           </NavLink>
-          <NavLink to="/about" className={({ isActive }) => 'mobile-nav-link' + (isActive ? ' active' : '')} onClick={closeMobile}>
+          <NavLink to="/about" className={function({ isActive }) { return 'mobile-nav-link' + (isActive ? ' active' : ''); }} onClick={closeMobile}>
             About Us
           </NavLink>
 
           {user ? (
             <>
               <div className="mobile-nav-divider" />
+              <Link to="/inbox" className="mobile-nav-link" onClick={closeMobile}>
+                Inbox {unreadCount > 0 && '(' + unreadCount + ')'}
+              </Link>
               <Link to="/my-jobs" className="mobile-nav-link" onClick={closeMobile}>
                 {role === 'tradesman' ? 'Requests' : 'My Jobs'}
               </Link>
