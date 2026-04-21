@@ -66,4 +66,19 @@ if (jrSql && !jrSql.sql.includes("'done'")) {
 addCol('job_requests', 'hours_worked', 'REAL');
 addCol('job_requests', 'final_fee',    'REAL');
 
+// Create notifications table if it doesn't exist yet
+db.exec(`
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    job_id INTEGER,
+    type TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES job_requests(id)
+  )
+`);
+
 module.exports = db;

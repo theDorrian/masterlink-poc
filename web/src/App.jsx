@@ -11,6 +11,7 @@ import MyJobsPage from './pages/MyJobsPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import TradesmanDashboard from './pages/TradesmanDashboard';
+import InboxPage from './pages/InboxPage';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="/tradesman/:id" element={<TradesmanDetailPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><TradesmanDashboard /></ProtectedRoute>} />
         <Route path="/job-request/:tradesmanId" element={<ProtectedRoute><JobRequestPage /></ProtectedRoute>} />
+        <Route path="/inbox"    element={<ProtectedRoute><InboxPage /></ProtectedRoute>} />
         <Route path="/my-jobs"  element={<ProtectedRoute><MyJobsPage /></ProtectedRoute>} />
         <Route path="/profile"  element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
