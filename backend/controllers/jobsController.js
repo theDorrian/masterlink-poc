@@ -1,4 +1,8 @@
 const db = require('../db/database');
+const { isPositiveNum, isNonNegInt, round2 } = require('../middleware/validate');
+
+const ALLOWED_URGENCY = ['emergency', 'flexible'];
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?)?$/;
 
 exports.create = (req, res, next) => {
   try {
@@ -8,8 +12,32 @@ exports.create = (req, res, next) => {
     }
 
     const { tradesman_id, title, description, address, city, urgency, offered_fee, scheduled_at, photos } = req.body;
+
     if (!tradesman_id || !title) {
       return res.status(400).json({ error: 'tradesman_id and title are required' });
+    }
+    if (!isNonNegInt(tradesman_id) || parseInt(tradesman_id, 10) < 1) {
+      return res.status(400).json({ error: 'tradesman_id must be a positive integer' });
+    }
+    const trimmedTitle = String(title).trim();
+    if (trimmedTitle.length < 1 || trimmedTitle.length > 200) {
+      return res.status(400).json({ error: 'title must be 1–200 characters' });
+    }
+    if (description !== undefined && String(description).length > 2000) {
+      return res.status(400).json({ error: 'description must be 2 000 characters or fewer' });
+    }
+    if (urgency !== undefined && !ALLOWED_URGENCY.includes(urgency)) {
+      return res.status(400).json({ error: `urgency must be one of: ${ALLOWED_URGENCY.join(', ')}` });
+    }
+    if (offered_fee !== undefined && offered_fee !== null && offered_fee !== '') {
+      if (!isPositiveNum(offered_fee) || parseFloat(offered_fee) > 9_999_999) {
+        return res.status(400).json({ error: 'offered_fee must be a positive number' });
+      }
+    }
+    if (scheduled_at !== undefined && scheduled_at !== null && scheduled_at !== '') {
+      if (!ISO_DATE_RE.test(scheduled_at) || isNaN(Date.parse(scheduled_at))) {
+        return res.status(400).json({ error: 'scheduled_at must be a valid ISO 8601 date' });
+      }
     }
 
     const tradesman = db.prepare("SELECT id FROM users WHERE id = ? AND role = 'tradesman'").get(tradesman_id);
@@ -28,6 +56,7 @@ exports.create = (req, res, next) => {
     );
 
     const job = db.prepare('SELECT * FROM job_requests WHERE id = ?').get(result.lastInsertRowid);
+    console.log('job created:', job.id);
     res.status(201).json({ job });
   } catch (err) { next(err); }
 };
@@ -83,7 +112,7 @@ exports.updateStatus = (req, res, next) => {
       return res.status(403).json({ error: 'Not your job request' });
     }
 
-    // ── Balance / escrow logic ───────────────────────────────────────────────
+    // escrow / balance logic
 
     if (status === 'done') {
       // Tradesman marks done + submits hours → calculate fee → freeze from customer
@@ -95,24 +124,24 @@ exports.updateStatus = (req, res, next) => {
       }
 
       const hrs = parseFloat(hours_worked);
-      if (!hrs || hrs <= 0) {
-        return res.status(400).json({ error: 'hours_worked must be a positive number' });
+      if (!isPositiveNum(hrs) || hrs > 168) {
+        return res.status(400).json({ error: 'hours_worked must be a positive number (max 168)' });
       }
 
       const tp = db.prepare('SELECT hourly_rate FROM tradesman_profiles WHERE user_id = ?').get(job.tradesman_id);
-      const finalFee = Math.round(hrs * tp.hourly_rate);
+      const finalFee = round2(hrs * tp.hourly_rate);
 
       const customer = db.prepare('SELECT balance FROM users WHERE id = ?').get(job.customer_id);
-      if (customer.balance < finalFee) {
+      if (round2(customer.balance) < finalFee) {
         return res.status(400).json({
-          error: `Customer has insufficient balance — needs ${finalFee} TJS (${hrs} hrs × ${tp.hourly_rate} TJS/hr), has ${Math.floor(customer.balance)} TJS`
+          error: `Customer has insufficient balance — needs ${finalFee.toFixed(2)} TJS (${hrs} hrs × ${tp.hourly_rate} TJS/hr), has ${round2(customer.balance).toFixed(2)} TJS`
         });
       }
 
       // Freeze the money and store calculation
       db.prepare('UPDATE job_requests SET hours_worked = ?, final_fee = ? WHERE id = ?')
         .run(hrs, finalFee, id);
-      db.prepare('UPDATE users SET balance = balance - ?, frozen_balance = frozen_balance + ? WHERE id = ?')
+      db.prepare('UPDATE users SET balance = round(balance - ?, 2), frozen_balance = round(frozen_balance + ?, 2) WHERE id = ?')
         .run(finalFee, finalFee, job.customer_id);
 
     } else if (status === 'completed') {
@@ -126,19 +155,17 @@ exports.updateStatus = (req, res, next) => {
 
       const fee = job.final_fee || 0;
       if (fee > 0) {
-        db.prepare('UPDATE users SET frozen_balance = frozen_balance - ? WHERE id = ?').run(fee, job.customer_id);
-        db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(fee, job.tradesman_id);
+        db.prepare('UPDATE users SET frozen_balance = round(frozen_balance - ?, 2) WHERE id = ?').run(fee, job.customer_id);
+        db.prepare('UPDATE users SET balance = round(balance + ?, 2) WHERE id = ?').run(fee, job.tradesman_id);
       }
 
     } else if (status === 'declined') {
       // If money was frozen (job was in 'done'), return it to customer
       if (job.status === 'done' && job.final_fee) {
-        db.prepare('UPDATE users SET frozen_balance = frozen_balance - ?, balance = balance + ? WHERE id = ?')
+        db.prepare('UPDATE users SET frozen_balance = round(frozen_balance - ?, 2), balance = round(balance + ?, 2) WHERE id = ?')
           .run(job.final_fee, job.final_fee, job.customer_id);
       }
     }
-
-    // ────────────────────────────────────────────────────────────────────────
 
     db.prepare('UPDATE job_requests SET status = ? WHERE id = ?').run(status, id);
     const updated = db.prepare('SELECT * FROM job_requests WHERE id = ?').get(id);

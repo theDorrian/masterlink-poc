@@ -6,13 +6,13 @@
   gap: 12px;
   padding: 14px;
   background: var(--gray-50);
-  border-radius: 10px;
+  border-radius: 2px;
   margin-bottom: 24px;
 }
 .req-avatar {
   width: 44px; height: 44px;
-  border-radius: 10px;
-  background: var(--orange);
+  border-radius: 2px;
+  background: var(--primary);
   color: #fff;
   font-size: 18px;
   font-weight: 900;
@@ -24,7 +24,7 @@
 .urgency-btn {
   flex: 1;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 600;
   border: 2px solid var(--gray-200);
@@ -39,3 +39,9 @@
 @media (max-width: 700px) {
   .job-request-layout { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 480px) {
+  .urgency-btns { flex-direction: column; }
+  .urgency-btn { padding: 13px; }
+}
+

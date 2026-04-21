@@ -1,13 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Star, MapPin, Award } from 'lucide-react';
 import { tradesmensApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import './TradesmanDetailPage.css';
 
+function StarRow({ rating, total = 5, size = 14 }) {
+  return (
+    <span className="star-row">
+      {Array.from({ length: total }, (_, i) => (
+        <Star key={i} size={size} fill={i < rating ? 'currentColor' : 'none'} strokeWidth={1.5} />
+      ))}
+    </span>
+  );
+}
+
 export default function TradesmanDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { user, role } = useAuth();
   const [tradesman, setTradesman] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +37,7 @@ export default function TradesmanDetailPage() {
   if (loading) return <div className="page-wrap" style={{ textAlign: 'center', paddingTop: 80 }}><span className="spinner spinner-dark" style={{ width: 36, height: 36 }} /></div>;
   if (!tradesman) return <div className="page-wrap">Tradesman not found.</div>;
 
-  const { name, trade, city, hourly_rate, call_out_fee, avg_rating, review_count, is_available, years_experience, bio } = tradesman;
+  const { name, trade, city, hourly_rate, call_out_fee, avg_rating, review_count, is_available, years_experience, bio, avatar_url } = tradesman;
 
   return (
     <div className="page-wrap">
@@ -35,7 +46,9 @@ export default function TradesmanDetailPage() {
       <div className="detail-layout">
         <div className="detail-main">
           <div className="card detail-header">
-            <div className="detail-avatar">{name?.[0]}</div>
+            <div className="detail-avatar">
+              <img src={avatar_url || '/default-avatar.svg'} alt={name} className="detail-avatar-img" />
+            </div>
             <div className="detail-info">
               <div className="detail-name-row">
                 <h1>{name}</h1>
@@ -45,9 +58,14 @@ export default function TradesmanDetailPage() {
               </div>
               <div className="detail-trade">{trade}</div>
               <div className="detail-stats">
-                {avg_rating > 0 && <span>★ {avg_rating.toFixed(1)} ({review_count} reviews)</span>}
-                <span>📍 {city}</span>
-                <span>🏆 {years_experience || 1} yrs exp</span>
+                {avg_rating > 0 && (
+                  <span className="detail-rating">
+                    <Star size={14} fill="currentColor" className="detail-star" />
+                    {avg_rating.toFixed(1)} ({review_count} reviews)
+                  </span>
+                )}
+                <span className="detail-stat-item"><MapPin size={13} />{city}</span>
+                <span className="detail-stat-item"><Award size={13} />{years_experience || 1} yrs exp</span>
               </div>
             </div>
           </div>
@@ -59,7 +77,7 @@ export default function TradesmanDetailPage() {
             </div>
           )}
 
-          <ReviewsSection reviews={reviews} tradesmanId={id} role={role} onReviewAdded={fetchData} />
+          <ReviewsSection reviews={reviews} />
         </div>
 
         <aside className="detail-sidebar">
@@ -75,9 +93,9 @@ export default function TradesmanDetailPage() {
             </div>
             <p className="price-note">Final price agreed after inspection. Payment after completion.</p>
 
-            {role === 'customer' && (
+            {role !== 'tradesman' && (
               <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 20 }}
-                onClick={() => navigate(`/job-request/${id}`, { state: { tradesman } })}>
+                onClick={() => user ? navigate(`/job-request/${id}`, { state: { tradesman } }) : navigate('/login')}>
                 Book Service
               </button>
             )}
@@ -100,7 +118,11 @@ function ReviewsSection({ reviews }) {
             <div key={i} className="review-item">
               <div className="review-header">
                 <span className="reviewer-name">{r.reviewer_name}</span>
-                <span className="review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                <span className="review-stars">
+                  {Array.from({ length: 5 }, (_, idx) => (
+                    <Star key={idx} size={13} fill={idx < r.rating ? 'currentColor' : 'none'} strokeWidth={1.5} />
+                  ))}
+                </span>
               </div>
               {r.comment && <p className="review-comment">{r.comment}</p>}
               <p style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 4 }}>

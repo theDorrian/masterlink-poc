@@ -8,7 +8,7 @@
 }
 .auth-card { width: 100%; max-width: 460px; }
 .auth-logo { font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
-.auth-logo span { color: var(--orange); }
+.auth-logo span { color: var(--primary); }
 .auth-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; }
 .auth-sub { font-size: 14px; color: var(--gray-500); text-align: center; margin-bottom: 24px; }
 .auth-btn { width: 100%; margin-top: 8px; }
@@ -33,14 +33,14 @@
   position: relative;
 }
 .auth-switch { text-align: center; font-size: 14px; color: var(--gray-500); }
-.auth-switch a { color: var(--orange); font-weight: 700; }
+.auth-switch a { color: var(--primary); font-weight: 700; }
 .auth-demo { text-align: center; font-size: 12px; color: var(--gray-400); margin-top: 16px; }
-.auth-demo code { background: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+.auth-demo code { background: var(--gray-100); padding: 2px 6px; border-radius: 2px; font-size: 12px; }
 
 .role-toggle {
   display: flex;
   background: var(--gray-100);
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 4px;
   margin-bottom: 20px;
   gap: 4px;
@@ -48,7 +48,7 @@
 .role-btn {
   flex: 1;
   padding: 9px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gray-500);
@@ -60,7 +60,7 @@
 .trade-pills { display: flex; flex-wrap: wrap; gap: 8px; }
 .trade-pill {
   padding: 7px 14px;
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 13px;
   font-weight: 600;
   border: 1.5px solid var(--gray-200);
@@ -68,6 +68,30 @@
   background: #fff;
   transition: all 0.15s;
 }
-.trade-pill.active { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+.trade-pill.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Registration avatar picker ─────────────────────────────────────────── */
+.reg-avatar-wrap { display: flex; align-items: center; gap: 16px; }
+.reg-avatar {
+  width: 72px; height: 72px;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.reg-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reg-avatar-hint { font-size: 13px; color: var(--gray-500); }
+.reg-avatar-set  { color: var(--primary); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .auth-page { padding: 20px 16px; align-items: flex-start; }
+  .auth-card { padding: 20px; }
+  .auth-title { font-size: 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .reg-avatar-wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .role-btn { padding: 10px 8px; font-size: 13px; }
+}
+

@@ -18,7 +18,7 @@ const insertUser = db.prepare(`
   VALUES (@name, @email, @password_hash, @role, @avatar_url)
 `);
 
-// ─── Customers ────────────────────────────────────────────────────────────────
+// customers
 
 const customerList = [
   { name: 'Sarvinoz Hasanova',  email: 'sarvinoz@example.com' },
@@ -42,7 +42,7 @@ const customerIds = customerList.map(c => {
 
 const [sarvinoz, alisher, zulfiya, parviz, kamola, maftuna] = customerIds;
 
-// ─── Tradesmen ────────────────────────────────────────────────────────────────
+// tradesmen
 
 const insertProfile = db.prepare(`
   INSERT INTO tradesman_profiles (user_id, trade, hourly_rate, call_out_fee, bio, city, latitude, longitude, avg_rating, review_count, is_available, years_experience)
@@ -92,7 +92,7 @@ for (const t of tradesmensData) {
 
 const [tRustam, tFiruz, tBahrom, tSherzod, tUmed, tNilufar, tKomil, tDilnoza, tNodir, tAkbar, tGulbahor, tDavron] = tradesmanIds;
 
-// ─── Jobs ─────────────────────────────────────────────────────────────────────
+// jobs
 
 const insertJob = db.prepare(`
   INSERT INTO job_requests (customer_id, tradesman_id, title, description, address, city, urgency, offered_fee, status, scheduled_at, photos_json)
@@ -147,7 +147,7 @@ insertJob.run({ customer_id: alisher,  tradesman_id: tRustam, title: 'New bathro
 insertJob.run({ customer_id: zulfiya,  tradesman_id: tNodir,  title: 'Hallway floor tiles',              description: 'Hallway needs new tiles, approx 8m².',                   address: 'Bokhtar St 17, apt 5',  city: 'Dushanbe', urgency: 'flexible',  offered_fee: 500, status: 'pending',  scheduled_at: daysAhead(5), photos_json: '[]' });
 insertJob.run({ customer_id: parviz,   tradesman_id: tAkbar,  title: 'Garden boundary wall repair',      description: 'Part of the boundary wall has crumbled and needs rebuilding.', address: 'Khujand New Town',   city: 'Khujand',  urgency: 'flexible',  offered_fee: 300, status: 'pending',  scheduled_at: daysAhead(4), photos_json: '[]' });
 
-// ─── Reviews ──────────────────────────────────────────────────────────────────
+// reviews
 
 const insertReview = db.prepare(`
   INSERT INTO reviews (job_id, reviewer_id, reviewee_id, rating, comment)
@@ -185,11 +185,11 @@ for (const r of reviewSpec) {
   });
 }
 
-// ─── Give customers starting balance ─────────────────────────────────────────
+// give all customers a starting balance of 5000 TJS for testing
 
 db.prepare("UPDATE users SET balance = 5000 WHERE role = 'customer'").run();
 
-// ─── Recalculate tradesman ratings from actual reviews ────────────────────────
+// recalculate ratings from the reviews we just inserted
 
 const updateProfile = db.prepare(
   'UPDATE tradesman_profiles SET avg_rating = ?, review_count = ? WHERE user_id = ?'

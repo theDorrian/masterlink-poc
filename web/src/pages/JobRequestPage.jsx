@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Zap, Calendar, Send } from 'lucide-react';
 import { jobsApi } from '../api/client';
 import './JobRequestPage.css';
 
 function defaultSchedule() {
-  const d = new Date();
-  d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30, 0, 0);
-  return d.toISOString().slice(0, 16);
+  return new Date().toISOString().slice(0, 16);
 }
 
 export default function JobRequestPage() {
@@ -63,7 +62,7 @@ export default function JobRequestPage() {
               <div className="req-avatar">{tradesman.name?.[0]}</div>
               <div>
                 <div style={{ fontWeight: 700 }}>{tradesman.name}</div>
-                <div style={{ fontSize: 13, color: 'var(--orange)', fontWeight: 600 }}>{tradesman.trade}</div>
+                <div style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 600 }}>{tradesman.trade}</div>
               </div>
             </div>
           )}
@@ -87,7 +86,10 @@ export default function JobRequestPage() {
             <div className="form-group">
               <label>Urgency</label>
               <div className="urgency-btns">
-                {[['emergency', '⚡ Emergency', 'red'], ['flexible', '📅 Scheduled', 'blue']].map(([val, label, color]) => (
+                {[
+                  ['emergency', <><Zap size={13} /> Emergency</>, 'red'],
+                  ['flexible',  <><Calendar size={13} /> Scheduled</>, 'blue'],
+                ].map(([val, label, color]) => (
                   <button key={val} type="button"
                     className={`urgency-btn ${form.urgency === val ? 'active active-' + color : ''}`}
                     onClick={() => setForm(f => ({ ...f, urgency: val, scheduled_at: val === 'emergency' ? '' : f.scheduled_at || defaultSchedule() }))}>
@@ -99,7 +101,7 @@ export default function JobRequestPage() {
 
             {form.urgency !== 'emergency' && (
               <div className="form-group">
-                <label>📅 Preferred Date &amp; Time</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Calendar size={14} /> Preferred Date &amp; Time</label>
                 <input
                   className="form-control"
                   type="datetime-local"
@@ -126,7 +128,7 @@ export default function JobRequestPage() {
             </div>
 
             <button className="btn btn-primary btn-lg" type="submit" style={{ width: '100%' }} disabled={loading}>
-              {loading ? <span className="spinner" /> : 'Submit Request ✈'}
+              {loading ? <span className="spinner" /> : <><Send size={15} /> Submit Request</>}
             </button>
           </form>
         </div>

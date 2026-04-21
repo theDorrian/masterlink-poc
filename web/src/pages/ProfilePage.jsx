@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { CreditCard, MapPin, Calendar, Banknote, Coins, Star } from 'lucide-react';
 import { authApi, jobsApi, reviewsApi } from '../api/client';
+import AvatarCropModal from '../components/AvatarCropModal';
 import './ProfilePage.css';
 
 const PAYMENT_TYPES = ['Visa', 'Mastercard', 'PayMe', 'Click', 'Bank Transfer', 'Cash'];
@@ -16,6 +18,10 @@ export default function ProfilePage() {
   const [jobsOpen, setJobsOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsOpen, setReviewsOpen] = useState(false);
+  const [avatarSrc, setAvatarSrc]           = useState(null); // objectURL open in crop modal
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError]         = useState('');
+  const avatarFileRef = useRef(null);
 
   useEffect(() => {
     authApi.me().then(res => setProfile(res.data.profile));
@@ -31,10 +37,58 @@ export default function ProfilePage() {
 
   const handleLogout = () => { logout(); navigate('/'); };
 
-  const parsed = (() => {
-    try { return user.payment_method ? JSON.parse(user.payment_method) : null; }
-    catch { return null; }
-  })();
+  const handleAvatarFileSelect = e => {
+    const file = e.target.files?.[0];
+    if (avatarFileRef.current) avatarFileRef.current.value = '';
+    if (!file) return;
+    setAvatarError('');
+
+    if (!file.type.startsWith('image/')) { setAvatarError('Please select an image file'); return; }
+    if (file.size > 20 * 1024 * 1024)   { setAvatarError('File must be under 20 MB'); return; }
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth < 150 || img.naturalHeight < 150) {
+        URL.revokeObjectURL(url);
+        setAvatarError('Image must be at least 150 × 150 px');
+        return;
+      }
+      setAvatarSrc(url);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); setAvatarError('Could not read image'); };
+    img.src = url;
+  };
+
+  const handleCropSave = async dataUrl => {
+    const toRevoke = avatarSrc;
+    setAvatarSrc(null);
+    URL.revokeObjectURL(toRevoke);
+    setAvatarError('');
+    setAvatarUploading(true);
+    try {
+      await authApi.uploadAvatar(dataUrl);
+    } catch {
+      setAvatarError('Upload failed — please try again');
+      setAvatarUploading(false);
+      return;
+    }
+    // Upload succeeded — refresh display; failure here is non-critical
+    try { await refreshUser(); } catch { /* will reflect on next page load */ }
+    setAvatarUploading(false);
+  };
+
+  const handleCropClose = () => {
+    URL.revokeObjectURL(avatarSrc);
+    setAvatarSrc(null);
+  };
+
+  let parsed = null;
+  try {
+    if (user.payment_method) parsed = JSON.parse(user.payment_method);
+  } catch (e) {
+    parsed = null;
+  }
 
   return (
     <div className="page-wrap profile-wrap">
@@ -42,7 +96,24 @@ export default function ProfilePage() {
       {/* ── Profile card ── */}
       <div className="card profile-card">
         <div className="profile-avatar-wrap">
-          <div className="profile-avatar">{user.name?.[0]}</div>
+          <div
+            className="profile-avatar"
+            onClick={() => !avatarUploading && avatarFileRef.current?.click()}
+            title="Change profile picture"
+          >
+            {avatarUploading
+              ? <span className="spinner" style={{ width: 26, height: 26, borderTopColor: '#fff' }} />
+              : <img src={user.avatar_url || '/default-avatar.svg'} alt={user.name} className="avatar-img" />}
+            {!avatarUploading && (
+              <div className="avatar-cam-hint">
+                <svg width="15" height="14" viewBox="0 0 20 18" fill="white" aria-hidden="true">
+                  <path d="M7 1 5.5 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2.5L13 1H7Zm3 13a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>
+                </svg>
+              </div>
+            )}
+          </div>
+          <input ref={avatarFileRef} type="file" accept="image/*"
+            style={{ display: 'none' }} onChange={handleAvatarFileSelect} />
           <div>
             <div className="profile-name">{user.name}</div>
             <div className="profile-email">{user.email}</div>
@@ -50,6 +121,7 @@ export default function ProfilePage() {
               style={{ marginTop: 6, display: 'inline-block' }}>
               {role === 'tradesman' ? 'Tradesman' : 'Customer'}
             </span>
+            {avatarError && <div className="avatar-error">{avatarError}</div>}
           </div>
         </div>
 
@@ -68,7 +140,7 @@ export default function ProfilePage() {
 
           <div className="profile-row">
             <span>Balance</span>
-            <strong style={{ color: 'var(--orange)' }}>{(user.balance || 0).toFixed(0)} TJS</strong>
+            <strong style={{ color: 'var(--primary)' }}>{(user.balance || 0).toFixed(0)} TJS</strong>
           </div>
 
           {(user.frozen_balance || 0) > 0 && (
@@ -81,7 +153,7 @@ export default function ProfilePage() {
           {parsed && (
             <div className="profile-row">
               <span>Payment</span>
-              <strong>💳 {parsed.type}{parsed.identifier ? ` · ${parsed.identifier}` : ''}</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: 5 }}><CreditCard size={14} />{parsed.type}{parsed.identifier ? ` · ${parsed.identifier}` : ''}</strong>
             </div>
           )}
         </div>
@@ -115,11 +187,11 @@ export default function ProfilePage() {
         </SettingsSection>
       </div>
 
-      {/* ── Completed jobs ── */}
+      {/* ── Job history ── */}
       <div className="card accordion-card">
         <button className="accordion-toggle" onClick={() => setJobsOpen(o => !o)}>
           <span className="accordion-title">
-            Completed Jobs
+            {role === 'customer' ? 'Job History' : 'Completed Jobs'}
             {!loadingJobs && completedJobs.length > 0 && (
               <span className="accordion-count">{completedJobs.length}</span>
             )}
@@ -135,7 +207,7 @@ export default function ProfilePage() {
               </div>
             ) : completedJobs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--gray-400)', fontSize: 14 }}>
-                No completed jobs yet
+                {role === 'customer' ? 'No jobs in your history yet' : 'No completed jobs yet'}
               </div>
             ) : (
               <div className="completed-list">
@@ -153,20 +225,20 @@ export default function ProfilePage() {
                           ) : (
                             <>Customer: {job.customer_name}</>
                           )}
-                          {job.city && <> · 📍 {job.city}</>}
+                          {job.city && <> · <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}><MapPin size={11} />{job.city}</span></>}
                         </div>
                       </div>
-                      <span className="badge badge-blue">✓ Completed</span>
+                      <span className="badge badge-blue">Completed</span>
                     </div>
                     {job.scheduled_at && (
                       <div className="completed-date">
-                        🗓 {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
+                        <Calendar size={12} /> {new Date(job.scheduled_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
                       </div>
                     )}
                     {job.final_fee
-                      ? <div className="completed-fee">💸 Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
+                      ? <div className="completed-fee"><Banknote size={13} /> Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
                       : job.offered_fee
-                        ? <div className="completed-fee">💰 Budget: {job.offered_fee} TJS</div>
+                        ? <div className="completed-fee"><Coins size={13} /> Budget: {job.offered_fee} TJS</div>
                         : null
                     }
                     {role === 'customer' && job.tradesman_id && (
@@ -182,6 +254,10 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+      {avatarSrc && (
+        <AvatarCropModal src={avatarSrc} onSave={handleCropSave} onClose={handleCropClose} />
+      )}
+
       {/* ── Reviews (tradesman only) ── */}
       {role === 'tradesman' && (
         <div className="card accordion-card">
@@ -208,7 +284,9 @@ export default function ProfilePage() {
                           <div className="job-meta-small">by {r.reviewer_name}</div>
                         </div>
                         <div className="review-stars">
-                          {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star key={i} size={13} fill={i < r.rating ? 'currentColor' : 'none'} strokeWidth={1.5} />
+                          ))}
                         </div>
                       </div>
                       {r.comment && <p style={{ fontSize: 14, color: 'var(--gray-600)', margin: '6px 0 0', lineHeight: 1.5 }}>{r.comment}</p>}
@@ -404,10 +482,12 @@ function BalanceSection({ user, onUpdated }) {
 // ── Payment Method ────────────────────────────────────────────────────────────
 
 function PaymentSection({ user, onUpdated }) {
-  const parsed = (() => {
-    try { return user.payment_method ? JSON.parse(user.payment_method) : null; }
-    catch { return null; }
-  })();
+  let parsed = null;
+  try {
+    if (user.payment_method) parsed = JSON.parse(user.payment_method);
+  } catch (e) {
+    parsed = null;
+  }
 
   const [type, setType]       = useState(parsed?.type || '');
   const [identifier, setId]   = useState(parsed?.identifier || '');
@@ -491,7 +571,7 @@ function PasswordSection() {
       </div>
       <div className="form-group">
         <label>New Password</label>
-        <input className="form-control" type="password" placeholder="Min 6 characters" value={form.new_password} onChange={set('new_password')} required />
+        <input className="form-control" type="password" placeholder="Min 8 characters" value={form.new_password} onChange={set('new_password')} required />
       </div>
       <div className="form-group">
         <label>Confirm New Password</label>
@@ -503,3 +583,4 @@ function PasswordSection() {
     </form>
   );
 }
+

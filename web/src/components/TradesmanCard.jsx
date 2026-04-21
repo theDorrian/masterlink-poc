@@ -1,29 +1,35 @@
 import { useNavigate } from 'react-router-dom';
+import { Star, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './TradesmanCard.css';
 
 export default function TradesmanCard({ tradesman }) {
   const navigate = useNavigate();
-  const { role } = useAuth();
-  const { id, name, trade, city, hourly_rate, avg_rating, review_count, is_available } = tradesman;
+  const { user, role } = useAuth();
+  const { id, name, trade, city, hourly_rate, avg_rating, review_count, is_available, avatar_url } = tradesman;
 
   return (
     <div className="t-card">
       <div className="t-card-left">
-        <div className="t-avatar">
-          {name?.[0]}
+        <div className="t-avatar-wrap">
+          <div className="t-avatar">
+            <img src={avatar_url || '/default-avatar.svg'} alt={name} className="t-avatar-img" />
+          </div>
           <span className={`t-dot ${is_available ? 'online' : 'offline'}`} />
         </div>
         <div className="t-info">
           <div className="t-name-row">
             <span className="t-name">{name}</span>
             {avg_rating > 0 && (
-              <span className="t-rating">★ {avg_rating.toFixed(1)} ({review_count})</span>
+              <span className="t-rating">
+                <Star size={12} fill="currentColor" className="t-star" />
+                {avg_rating.toFixed(1)} ({review_count})
+              </span>
             )}
           </div>
           <span className="t-trade">{trade}</span>
           <div className="t-meta">
-            <span>📍 {city}</span>
+            <span className="t-meta-loc"><MapPin size={12} />{city}</span>
             <span className={`badge ${is_available ? 'badge-green' : 'badge-gray'}`}>
               {is_available ? 'Available Now' : 'Avail. Later'}
             </span>
@@ -36,8 +42,10 @@ export default function TradesmanCard({ tradesman }) {
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/tradesman/${id}`)}>
             View Profile
           </button>
-          {role === 'customer' && (
-            <button className="btn btn-primary btn-sm" onClick={() => navigate(`/job-request/${id}`, { state: { tradesman } })}>
+          {role !== 'tradesman' && (
+            <button className="btn btn-primary btn-sm" onClick={() =>
+              user ? navigate(`/job-request/${id}`, { state: { tradesman } }) : navigate('/login')
+            }>
               Contact
             </button>
           )}

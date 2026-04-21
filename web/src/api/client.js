@@ -28,6 +28,7 @@ export const authApi = {
   login:            (data)   => client.post('/api/auth/login', data),
   me:               ()       => client.get('/api/auth/me'),
   updateProfile:    (data)   => client.put('/api/auth/profile', data),
+  uploadAvatar:     (avatar_url) => client.put('/api/auth/profile', { avatar_url }),
   changePassword:   (data)   => client.put('/api/auth/password', data),
   topUp:            (amount) => client.post('/api/auth/topup', { amount }),
   withdraw:         (amount) => client.post('/api/auth/withdraw', { amount }),
