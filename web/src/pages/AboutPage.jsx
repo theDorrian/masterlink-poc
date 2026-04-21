@@ -27,7 +27,7 @@ const VALUES = [
 
 const TEAM = [
   { initials: 'MT', name: 'Muqaddas Tojibaeva',  role: 'Team Lead & Backend'   },
-  { initials: 'KA', name: 'Khusrav Akdodov',     role: 'Frontend Developer'    },
+  { initials: 'KA', name: 'Khusrav Akdodov',     role: 'Lead Developer'        },
   { initials: 'NE', name: 'Nilufar Ergasheva',   role: 'UI/UX & Design'        },
   { initials: 'AM', name: 'Akbar Muhammadiev',   role: 'Backend Developer'     },
   { initials: 'AS', name: 'Amir Shabozov',       role: 'Full-Stack Developer'  },

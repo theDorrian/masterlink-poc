@@ -19,7 +19,6 @@ export default function JobRequestPage() {
     description: '',
     address: '',
     urgency: 'flexible',
-    offered_fee: '',
     scheduled_at: defaultSchedule(),
   });
   const [loading, setLoading] = useState(false);
@@ -38,7 +37,6 @@ export default function JobRequestPage() {
         description: form.description,
         address: form.address,
         urgency: form.urgency,
-        offered_fee: form.offered_fee ? parseFloat(form.offered_fee) : null,
         scheduled_at: form.scheduled_at || null,
       });
       navigate('/my-jobs', { state: { success: true } });
@@ -119,12 +117,6 @@ export default function JobRequestPage() {
               <label>Address</label>
               <input className="form-control" placeholder="e.g. Rudaki Ave 45, apt 12, Dushanbe"
                 value={form.address} onChange={set('address')} />
-            </div>
-
-            <div className="form-group">
-              <label>Offered Fee (TJS, optional)</label>
-              <input className="form-control" type="number" placeholder="Your budget"
-                value={form.offered_fee} onChange={set('offered_fee')} />
             </div>
 
             <button className="btn btn-primary btn-lg" type="submit" style={{ width: '100%' }} disabled={loading}>

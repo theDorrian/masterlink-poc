@@ -57,9 +57,17 @@ export default function LoginPage() {
           <Link to="/register">Sign Up</Link>
         </p>
 
-        <p className="auth-demo">
-          Demo: <code>sarvinoz@example.com</code> / <code>password123</code>
-        </p>
+        <div className="auth-demo">
+          <span className="auth-demo-label">Demo accounts:</span>
+          <div className="auth-demo-btns">
+            <button type="button" className="auth-demo-btn" onClick={() => { setEmail('sarvinoz@example.com'); setPassword('password123'); }}>
+              Customer
+            </button>
+            <button type="button" className="auth-demo-btn" onClick={() => { setEmail('rustam.n@example.com'); setPassword('password123'); }}>
+              Tradesman
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

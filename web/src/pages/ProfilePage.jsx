@@ -237,9 +237,7 @@ export default function ProfilePage() {
                     )}
                     {job.final_fee
                       ? <div className="completed-fee"><Banknote size={13} /> Paid: <strong>{job.final_fee} TJS</strong>{job.hours_worked ? ` (${job.hours_worked % 1 === 0 ? job.hours_worked : job.hours_worked.toFixed(1)} hrs)` : ''}</div>
-                      : job.offered_fee
-                        ? <div className="completed-fee"><Coins size={13} /> Budget: {job.offered_fee} TJS</div>
-                        : null
+                      : null
                     }
                     {role === 'customer' && job.tradesman_id && (
                       <button className="btn btn-secondary btn-sm" style={{ marginTop: 10 }}

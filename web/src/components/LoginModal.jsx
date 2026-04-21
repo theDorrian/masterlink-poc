@@ -27,6 +27,12 @@ export default function LoginModal({ onClose, onSuccess }) {
     }
   };
 
+  const fillDemo = (email) => {
+    setEmail(email);
+    setPassword('password123');
+    setError('');
+  };
+
   return (
     <div className="lm-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="card lm-card">
@@ -70,6 +76,18 @@ export default function LoginModal({ onClose, onSuccess }) {
             {loading ? <span className="spinner" /> : 'Log In'}
           </button>
         </form>
+
+        <div className="lm-demo">
+          <span className="lm-demo-label">Demo accounts:</span>
+          <div className="lm-demo-btns">
+            <button type="button" className="lm-demo-btn" onClick={() => fillDemo('sarvinoz@example.com')}>
+              Customer
+            </button>
+            <button type="button" className="lm-demo-btn" onClick={() => fillDemo('rustam.n@example.com')}>
+              Tradesman
+            </button>
+          </div>
+        </div>
 
         <p className="lm-footer">
           No account?{' '}

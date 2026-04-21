@@ -110,8 +110,6 @@ export default function MyJobsPage() {
               )}
               {job.description && <p className="job-desc">{job.description}</p>}
               {job.address && <p className="job-address"><MapPin size={13} />{job.address}</p>}
-              {job.offered_fee && <p className="job-fee">Budget: <strong>{job.offered_fee} TJS</strong></p>}
-
               {job.status === 'done' && job.final_fee > 0 && (
                 <div className="job-payment-summary">
                   <Clock size={13} /> {job.hours_worked} hrs × {job.hourly_rate} TJS/hr = <strong>{job.final_fee} TJS</strong>

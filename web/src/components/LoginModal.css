@@ -57,6 +57,43 @@
 .lm-link { color: var(--primary); font-weight: 700; }
 .lm-link:hover { text-decoration: underline; }
 
+.lm-demo {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+}
+
+.lm-demo-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.lm-demo-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.lm-demo-btn {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.lm-demo-btn:hover { border-color: var(--primary); color: var(--primary); }
+
 @media (max-width: 480px) {
   .lm-card { padding: 16px; }
 }

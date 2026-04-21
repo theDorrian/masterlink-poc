@@ -34,8 +34,37 @@
 }
 .auth-switch { text-align: center; font-size: 14px; color: var(--gray-500); }
 .auth-switch a { color: var(--primary); font-weight: 700; }
-.auth-demo { text-align: center; font-size: 12px; color: var(--gray-400); margin-top: 16px; }
-.auth-demo code { background: var(--gray-100); padding: 2px 6px; border-radius: 2px; font-size: 12px; }
+.auth-demo {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+}
+.auth-demo-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.auth-demo-btns { display: flex; gap: 8px; }
+.auth-demo-btn {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.auth-demo-btn:hover { border-color: var(--primary); color: var(--primary); }
 
 .role-toggle {
   display: flex;
